@@ -13,7 +13,8 @@ struct onBoardingPage: View {
             // Logo
             ZStack {
                 RoundedRectangle(cornerRadius: 1000)
-                    .fill(Color.primary.opacity(0.2))
+                    .fill(Color.primary.opacity(0.1))
+                    .fill(Color(red: 97/255, green: 56/255, blue: 20/255, opacity: 0.6))
                     .frame(width: 109, height: 109)
                     .glassEffect()
 
@@ -22,6 +23,7 @@ struct onBoardingPage: View {
                     .foregroundStyle(Color.richOrange)
             }
             .frame(maxWidth: .infinity, alignment: .center)
+            .padding(.bottom,47)
 
             // Greeting
             VStack(alignment: .leading, spacing: 4) {
@@ -32,6 +34,7 @@ struct onBoardingPage: View {
                     .font(.system(size: 17))
                     .foregroundColor(Color(red: 153/255, green: 153/255, blue: 153/255))
             }
+            .padding(.bottom,31)
 
             // Input Section
             VStack(alignment: .leading, spacing: 4) {
@@ -44,6 +47,8 @@ struct onBoardingPage: View {
 
 
             }
+            .padding(.bottom,24)
+
             
             VStack(alignment:.leading, spacing: 12){
                 Text("I want to learn it in a")
@@ -62,7 +67,7 @@ struct onBoardingPage: View {
             .frame(maxWidth: .infinity, alignment: .center)
         }
         .padding(.horizontal, 24)
-        .padding(.vertical, 32)
+        //.padding(.vertical, 32)
     }
 }
 
