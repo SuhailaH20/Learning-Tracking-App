@@ -13,7 +13,7 @@ struct activityPage: View {
            Toolbar()
             
             CalendarProgressCard()
-            Spacer().frame(height: 32)
+            Spacer().frame(height: 24)
 
             
             Learnedbutton()
