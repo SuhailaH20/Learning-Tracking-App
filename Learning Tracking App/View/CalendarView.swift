@@ -1,0 +1,100 @@
+import SwiftUI
+
+struct ScrollingCalendarView: View {
+    @StateObject private var viewModel = CalendarViewModel()
+
+    var body: some View {
+        HStack(alignment: .center){
+            ZStack{
+                Circle()
+                    .frame(width: 44, height: 44)
+                    .glassEffect()
+                Image(systemName: "chevron.backward")
+
+            }
+           // Spacer().frame(width: 90)
+            
+            Text("All activities")
+                .font(.system(size: 17, weight: .semibold))
+        }
+        ScrollView(.vertical, showsIndicators: true) {
+            VStack() {
+                ForEach(viewModel.months, id: \.self) { monthStart in
+                    CalendarMonthView(viewModel: viewModel, monthStart: monthStart)
+                        .frame(width: 300)
+                    Divider()
+                        .frame(height: 18)
+                        .padding(.horizontal,25)
+                    Spacer().frame(height: 24)
+                }
+            }
+            .padding()
+        }
+    }
+}
+
+struct CalendarMonthView: View {
+    let viewModel: CalendarViewModel
+    let monthStart: Date
+
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text(viewModel.formattedMonth(from: monthStart))
+                .font(.system(size: 17, weight: .semibold))
+
+            CalendarWeekHeaderView(weekDays: viewModel.weekDaySymbols())
+
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 10) {
+                ForEach(viewModel.daysInMonth(from: monthStart), id: \.self) { date in
+                    CalendarDayView(viewModel: viewModel, date: date)
+                }
+            }
+        }
+    }
+}
+
+
+struct CalendarWeekHeaderView: View {
+    let weekDays: [String]
+
+    var body: some View {
+        HStack {
+            ForEach(weekDays, id: \.self) { day in
+                Text(day)
+                    .font(.system(size: 13, weight: .semibold))
+                    .frame(maxWidth: .infinity)
+                    .foregroundColor(.secondary)
+            }
+        }
+    }
+}
+
+struct CalendarDayView: View {
+    let viewModel: CalendarViewModel
+    let date: Date
+
+    var body: some View {
+        if viewModel.isPlaceholder(date) {
+            Text("")
+                .frame(maxWidth: .infinity)
+        } else {
+            ZStack {
+                Circle()
+                    .frame(width: 40, height: 40)
+                    .foregroundStyle(Color.richOrange).opacity(0.2)
+                    .glassEffect()
+
+                Text("\(viewModel.dayNumber(from: date))")
+                    .font(.system(size: 24, weight: .medium))
+                    .foregroundStyle(Color.richOrange)
+                    .padding(1)
+                   
+            }
+        }
+    }
+}
+
+
+#Preview {
+    ScrollingCalendarView()
+}
