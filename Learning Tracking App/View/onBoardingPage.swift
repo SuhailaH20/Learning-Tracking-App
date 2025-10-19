@@ -13,8 +13,8 @@ struct onBoardingPage: View {
             // Logo
             ZStack {
                 RoundedRectangle(cornerRadius: 1000)
-                    .fill(Color.primary.opacity(0.1))
-                    .fill(Color(red: 97/255, green: 56/255, blue: 20/255, opacity: 0.6))
+                  //  .fill(Color.primary.opacity(0.1))
+                    .fill(Color.brownishOrange.opacity(0.4))
                     .frame(width: 109, height: 109)
                     .glassEffect()
 
