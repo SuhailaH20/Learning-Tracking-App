@@ -8,32 +8,33 @@
 import SwiftUI
 
 struct onBoardingPage: View {
+    @StateObject private var viewModel = InputSectionViewModel()
+    @State private var isActive = false
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            // Logo
-            Logo()
-            
-            // Greeting
-            Greeting()
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 24) {
+                Logo()
+                Greeting()
+                InputSection(viewModel: viewModel)
+                Spacer()
 
-            // Input Section
-            InputSection()
-            
-
-
-            // Spacer to push button down
-            Spacer()
-
-            // Start Button
-            StartLearningButton {
-                print("Start Learning tapped!")
+                StartLearningButton {
+                    print("Topic: \(viewModel.topic)")
+                    print("Timeframe: \(viewModel.selectedTimeframe)")
+                    isActive = true
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
             }
-            .frame(maxWidth: .infinity, alignment: .center)
+            .padding(.horizontal, 24)
+            .navigationDestination(isPresented: $isActive) {
+                activityPage()
+                    .navigationBarBackButtonHidden(true)
+            }
         }
-        .padding(.horizontal, 24)
-        //.padding(.vertical, 32)
     }
 }
+
 
 struct Logo: View {
     var body: some View {
@@ -88,36 +89,34 @@ struct Greeting: View {
 }
 
 struct InputSection: View {
+    @ObservedObject var viewModel: InputSectionViewModel
+
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text("I want to learn")
                 .font(.system(size: 22))
             
-            TextField("Swift", text: .constant(""))
+            TextField("Swift", text: $viewModel.topic)
                 .textFieldStyle(.plain)
             Divider()
-            
-            
         }
-        .padding(.bottom,24)
+        .padding(.bottom, 24)
         
-        
-        VStack(alignment:.leading, spacing: 12){
+        VStack(alignment: .leading, spacing: 12) {
             Text("I want to learn it in a")
                 .font(.system(size: 22))
-            
         }
-        
-        VStack(alignment:.leading){
-            TimeFilterView()
 
+        VStack(alignment: .leading) {
+            TimeFilterView(selected: $viewModel.selectedTimeframe)
         }
+    }
 }
-    
-}
+
+
 
 struct TimeFilterView: View {
-    @State private var selected = "Week"
+    @Binding var selected: String
 
     var body: some View {
         HStack(spacing: 8) {
@@ -156,6 +155,7 @@ struct TimeFilterView: View {
         }
     }
 }
+
 
 
 struct StartLearningButton: View {

@@ -9,12 +9,15 @@ import SwiftUI
 
 struct LearningGoalView: View {
     @Environment(\.presentationMode) var presentationMode
+    
+    @StateObject private var viewModel = InputSectionViewModel()
+
 
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading){
                 Spacer().frame(height: 32)
-                InputSection().padding(.horizontal)
+                InputSection(viewModel: viewModel).padding(.horizontal)
                 Spacer()
                 
             }
