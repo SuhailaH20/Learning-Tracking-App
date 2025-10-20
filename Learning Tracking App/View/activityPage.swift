@@ -52,8 +52,23 @@ struct Toolbar: View {
             
             ZStack{
                 Circle()
+                    .strokeBorder(
+                        AngularGradient(
+                            gradient: Gradient(colors: [
+                                Color.black.opacity(0.4),
+                                Color.white.opacity(0.6),
+                                Color.black.opacity(0.2),
+                                Color.white.opacity(0.9),
+                                Color.black.opacity(0.2),
+                                Color.black.opacity(0.4)
+                            ]),
+                            center: .center
+                        ),  lineWidth: 1
+                        
+                    )
                     .stroke(Color.black.opacity(0.1), lineWidth: 1)
                     .blur(radius: 1)
+                
                     .glassEffect()
                     .frame(width: 44, height: 44)
                 
@@ -208,8 +223,25 @@ struct Learnedbutton : View{
         .background(
             Circle()
                 .fill(Color.richOrange.opacity(0.95))
-                .glassEffect()
-                .glassEffect(.clear.interactive())
+                .overlay(
+                    Circle()
+                .strokeBorder(
+                    AngularGradient(
+                        gradient: Gradient(colors: [
+                            Color.black.opacity(0.4),
+                            Color.white.opacity(0.6),
+                            Color.black.opacity(0.2),
+                            Color.white.opacity(0.9),
+                            Color.black.opacity(0.2),
+                            Color.black.opacity(0.4)
+                        ]),
+                        center: .center
+                    ),  lineWidth: 1
+                    
+                )
+                )
+              .glassEffect()
+              .glassEffect(.clear.interactive())
 
         )
     }
