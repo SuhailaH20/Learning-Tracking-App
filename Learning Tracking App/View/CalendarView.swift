@@ -6,7 +6,7 @@ struct ScrollingCalendarView: View {
     var body: some View {
         ZStack(alignment: .top) {
             // Scrollable content
-            ScrollView(.vertical, showsIndicators: true) {
+            ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: 0) {
                     ForEach(viewModel.months, id: \.self) { monthStart in
                         CalendarMonthView(viewModel: viewModel, monthStart: monthStart)

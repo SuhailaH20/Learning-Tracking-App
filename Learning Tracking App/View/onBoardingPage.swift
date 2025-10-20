@@ -11,57 +11,15 @@ struct onBoardingPage: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
             // Logo
-            ZStack {
-                Circle()
-                //  .fill(Color.primary.opacity(0.1))
-                    .fill(Color.brownishOrange.opacity(0.3))
-                    .frame(width: 109, height: 109)
-                    .glassEffect()
-                    .overlay{
-                        Circle()
-                            .frame(width: 109, height: 109)
-                            .foregroundStyle(Color.richOrange).opacity(0.1)
-                            .glassEffect()
-                    }
-
-                Image(systemName: "flame.fill")
-                    .font(.system(size: 36, weight: .bold))
-                    .foregroundStyle(Color.orange)
-            }
-            .frame(maxWidth: .infinity, alignment: .center)
-            .padding(.bottom,47)
-
+            Logo()
+            
             // Greeting
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Hello Learner")
-                    .font(.system(size: 34, weight: .bold))
-
-                Text("This app will help you learn everyday!")
-                    .font(.system(size: 17))
-                    .foregroundColor(Color(red: 153/255, green: 153/255, blue: 153/255))
-            }
-            .padding(.bottom,31)
+            Greeting()
 
             // Input Section
-            VStack(alignment: .leading, spacing: 4) {
-                Text("I want to learn")
-                    .font(.system(size: 22))
-
-                TextField("Swift", text: .constant(""))
-                    .textFieldStyle(.plain)
-                Divider()
-
-
-            }
-            .padding(.bottom,24)
-
+            InputSection()
             
-            VStack(alignment:.leading, spacing: 12){
-                Text("I want to learn it in a")
-                    .font(.system(size: 22))
 
-                TimeFilterView()
-            }
 
             // Spacer to push button down
             Spacer()
@@ -77,7 +35,86 @@ struct onBoardingPage: View {
     }
 }
 
+struct Logo: View {
+    var body: some View {
+        ZStack {
+            Circle()
+            //  .fill(Color.primary.opacity(0.1))
+                .fill(Color.brownishOrange.opacity(0.3))
+                .frame(width: 109, height: 109)
+                .glassEffect()
+                .overlay{
+                    Circle()
+                        .strokeBorder(
+                            AngularGradient(
+                                gradient: Gradient(colors: [
+                                    Color.orange.opacity(0.4),
+                                    Color.orange.opacity(0.6),
+                                    Color.orange.opacity(0.2),
+                                    Color.yellow.opacity(0.9),
+                                    Color.orange.opacity(0.2),
+                                    Color.orange.opacity(0.4)
+                                ]),
+                                center: .center
+                            ),  lineWidth: 1
+                        )
+                        .frame(width: 109, height: 109)
+                        .foregroundStyle(Color.richOrange).opacity(0.1)
+      
+                        .glassEffect()
+                }
 
+            Image(systemName: "flame.fill")
+                .font(.system(size: 36, weight: .bold))
+                .foregroundStyle(Color.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .center)
+        .padding(.bottom,47)
+    }
+}
+
+struct Greeting: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Hello Learner")
+                .font(.system(size: 34, weight: .bold))
+
+            Text("This app will help you learn everyday!")
+                .font(.system(size: 17))
+                .foregroundColor(Color(red: 153/255, green: 153/255, blue: 153/255))
+        }
+        .padding(.bottom,31)
+    }
+}
+
+struct InputSection: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("I want to learn")
+                .font(.system(size: 22))
+            
+            TextField("Swift", text: .constant(""))
+                .textFieldStyle(.plain)
+            Divider()
+            
+            
+        }
+        .padding(.bottom,24)
+        
+        
+        VStack(alignment:.leading, spacing: 12){
+            Text("I want to learn it in a")
+                .font(.system(size: 22))
+            
+        }
+        
+        VStack(alignment:.leading){
+            TimeFilterView()
+
+        }
+}
+    
+}
 
 struct TimeFilterView: View {
     @State private var selected = "Week"
@@ -101,7 +138,19 @@ struct TimeFilterView: View {
                 .background(
                     RoundedRectangle(cornerRadius: 40)
                         .fill(selected == title ? Color.richOrange : Color.white.opacity(0.1))
-                       
+                        .strokeBorder(
+                            AngularGradient(
+                                gradient: Gradient(colors: [
+                                    Color.black.opacity(0.4),
+                                    Color.white.opacity(0.6),
+                                    Color.black.opacity(0.2),
+                                    Color.white.opacity(0.9),
+                                    Color.black.opacity(0.2),
+                                    Color.black.opacity(0.4)
+                                ]),
+                                center: .center
+                            ),  lineWidth: 1
+                        )
                         .glassEffect()
                 )
         }
@@ -121,6 +170,19 @@ struct StartLearningButton: View {
                 .background(
                     RoundedRectangle(cornerRadius: 40)
                         .fill(Color.richOrange)
+                        .strokeBorder(
+                            AngularGradient(
+                                gradient: Gradient(colors: [
+                                    Color.white.opacity(0.4),
+                                    Color.white.opacity(0.6),
+                                    Color.black.opacity(0.2),
+                                    Color.white.opacity(0.9),
+                                    Color.white.opacity(0.2),
+                                    Color.white.opacity(0.4)
+                                ]),
+                                center: .center
+                            ),  lineWidth: 1
+                        )
                 )
                 .glassEffect()
 

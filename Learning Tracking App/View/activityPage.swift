@@ -136,7 +136,7 @@ struct CalendarProgressCard: View {
                            
                         HStack {
                             Image(systemName: "flame.fill")
-                            .foregroundColor(.richOrange)
+                            .foregroundColor(.orange)
                             .font(.system(size: 15, weight: .bold))
                             
                             VStack(alignment:.leading){
@@ -208,6 +208,7 @@ struct Learnedbutton : View{
         .background(
             Circle()
                 .fill(Color.richOrange.opacity(0.95))
+                .glassEffect()
                 .glassEffect(.clear.interactive())
 
         )
@@ -223,7 +224,7 @@ struct Freezedbutton : View{
         .foregroundStyle(Color.white)
         .font(.system(size: 17))
         .frame(width: 274,height:48)
-        .glassEffect(.regular.tint(Color.coldBlue.opacity(0.65)).interactive())
+        .glassEffect(.regular.tint(Color.lightBlue.opacity(0.65)).interactive())
               
     }
 }
