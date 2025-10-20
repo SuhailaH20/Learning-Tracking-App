@@ -4,34 +4,62 @@ struct ScrollingCalendarView: View {
     @StateObject private var viewModel = CalendarViewModel()
 
     var body: some View {
-        HStack(alignment: .center){
-            ZStack{
+        ZStack(alignment: .top) {
+            // Scrollable content
+            ScrollView(.vertical, showsIndicators: true) {
+                VStack(spacing: 0) {
+                    ForEach(viewModel.months, id: \.self) { monthStart in
+                        CalendarMonthView(viewModel: viewModel, monthStart: monthStart)
+                            .frame(width: 338)
+                        
+                        Spacer().frame(height: 8)
+
+                        Rectangle()
+                            .frame(height: 0.5)
+                            .padding(.horizontal, 28)
+                            .foregroundStyle(Color.newGrey)
+
+                        Spacer().frame(height: 24)
+                    }
+                }
+                .padding(.top, 150) // Match nav bar height
+            }
+
+            // Transparent navigation bar
+            HStack {
+                ZStack {
+                    Circle()
+                        .frame(width: 44, height: 44)
+                        .glassEffect()
+                    Image(systemName: "chevron.backward")
+                }
+
+                Spacer()
+
+                Text("All activities")
+                    .font(.system(size: 17, weight: .semibold))
+
+                Spacer()
+
                 Circle()
                     .frame(width: 44, height: 44)
-                    .glassEffect()
-                Image(systemName: "chevron.backward")
-
+                    .opacity(0)
             }
-           // Spacer().frame(width: 90)
-            
-            Text("All activities")
-                .font(.system(size: 17, weight: .semibold))
+            .padding(.horizontal)
+            .frame(height: 190)
+            .background(
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.black, Color.black.opacity(0)]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
         }
-        ScrollView(.vertical, showsIndicators: true) {
-            VStack() {
-                ForEach(viewModel.months, id: \.self) { monthStart in
-                    CalendarMonthView(viewModel: viewModel, monthStart: monthStart)
-                        .frame(width: 300)
-                    Divider()
-                        .frame(height: 18)
-                        .padding(.horizontal,25)
-                    Spacer().frame(height: 24)
-                }
-            }
-            .padding()
-        }
+        .edgesIgnoringSafeArea(.top)
     }
 }
+
+
 
 struct CalendarMonthView: View {
     let viewModel: CalendarViewModel
@@ -41,7 +69,7 @@ struct CalendarMonthView: View {
         VStack(alignment: .leading) {
             Text(viewModel.formattedMonth(from: monthStart))
                 .font(.system(size: 17, weight: .semibold))
-
+            Spacer().frame(height: 8)
             CalendarWeekHeaderView(weekDays: viewModel.weekDaySymbols())
 
             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 10) {
@@ -86,7 +114,7 @@ struct CalendarDayView: View {
 
                 Text("\(viewModel.dayNumber(from: date))")
                     .font(.system(size: 24, weight: .medium))
-                    .foregroundStyle(Color.richOrange)
+                    .foregroundStyle(Color.orange)
                     .padding(1)
                    
             }

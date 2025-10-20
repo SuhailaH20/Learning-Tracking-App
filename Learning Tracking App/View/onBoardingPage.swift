@@ -12,15 +12,21 @@ struct onBoardingPage: View {
         VStack(alignment: .leading, spacing: 24) {
             // Logo
             ZStack {
-                RoundedRectangle(cornerRadius: 1000)
-                  //  .fill(Color.primary.opacity(0.1))
-                    .fill(Color.brownishOrange.opacity(0.4))
+                Circle()
+                //  .fill(Color.primary.opacity(0.1))
+                    .fill(Color.brownishOrange.opacity(0.3))
                     .frame(width: 109, height: 109)
                     .glassEffect()
+                    .overlay{
+                        Circle()
+                            .frame(width: 109, height: 109)
+                            .foregroundStyle(Color.richOrange).opacity(0.1)
+                            .glassEffect()
+                    }
 
                 Image(systemName: "flame.fill")
                     .font(.system(size: 36, weight: .bold))
-                    .foregroundStyle(Color.richOrange)
+                    .foregroundStyle(Color.orange)
             }
             .frame(maxWidth: .infinity, alignment: .center)
             .padding(.bottom,47)
@@ -92,10 +98,9 @@ struct TimeFilterView: View {
                 .font(.system(size: 17, weight: .medium))
                 .foregroundColor(.white)
                 .frame(width: 97, height: 48)
-                .glassEffect()
                 .background(
                     RoundedRectangle(cornerRadius: 40)
-                        .fill(selected == title ? Color.orange : Color.black.opacity(0.1))
+                        .fill(selected == title ? Color.richOrange : Color.white.opacity(0.1))
                        
                         .glassEffect()
                 )
@@ -113,11 +118,12 @@ struct StartLearningButton: View {
                 .font(.system(size: 17, weight: .medium))
                 .foregroundColor(.white)
                 .frame(width: 182, height: 48)
-                .glassEffect()
                 .background(
                     RoundedRectangle(cornerRadius: 40)
                         .fill(Color.richOrange)
                 )
+                .glassEffect()
+
         }
     }
 }
