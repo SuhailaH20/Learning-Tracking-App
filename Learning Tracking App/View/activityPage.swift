@@ -97,17 +97,18 @@ struct Toolbar: View {
 }
 
 struct CalendarProgressCard: View {
-    @State private var selectedDate = Date()
-    @State private var showPicker = false
+    @StateObject private var viewModel = CalendarProgressViewModel()
 
     var body: some View {
         ZStack {
             GlassEffectContainer {
                 VStack(spacing: 16) {
-                    // Pass bindings into MonthYearPickerView
-                    MonthYearPickerView(selectedDate: $selectedDate, showPicker: $showPicker)
+                    MonthYearPickerView(
+                        selectedDate: $viewModel.selectedDate,
+                        showPicker: $viewModel.showPicker,
+                        onWeekChange: viewModel.adjustWeek
+                    )
 
-                    // Weekday headers
                     HStack {
                         ForEach(["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"], id: \.self) { day in
                             Text(day)
@@ -117,13 +118,12 @@ struct CalendarProgressCard: View {
                         }
                     }
 
-                    // Dynamic week dates
                     HStack {
-                        ForEach(getWeekDates(), id: \.self) { date in
+                        ForEach(viewModel.weekDates, id: \.self) { date in
                             let dayNumber = Calendar.current.component(.day, from: date)
                             let isToday = Calendar.current.isDateInToday(date)
                             let isPast = date < Date() && !isToday
-                            
+
                             Circle()
                                 .fill(isToday ? Color.orange :
                                         isPast ? Color.brown :
@@ -141,63 +141,29 @@ struct CalendarProgressCard: View {
 
                     Divider()
 
-                    // Progress section
                     VStack(spacing: 12) {
                         Text("Learning Swift")
                             .font(.system(size: 16, weight: .semibold))
                             .frame(maxWidth: .infinity, alignment: .leading)
 
                         HStack(spacing: 12) {
-                            // Learned box
-                            ZStack {
-                                Rectangle()
-                                    .fill(Color.brownie)
-                                    .cornerRadius(34)
-                                    .opacity(0.8)
-                                    .glassEffect()
-                                    .frame(width: 160, height: 70)
+                            // Learned Box
+                            progressBox(
+                                icon: "flame.fill",
+                                color: .brownie,
+                                count: viewModel.progress.daysLearned,
+                                label: "Days Learned",
+                                iconColor: .orange
+                            )
 
-                                HStack {
-                                    Image(systemName: "flame.fill")
-                                        .foregroundColor(.orange)
-                                        .font(.system(size: 15, weight: .bold))
-
-                                    VStack(alignment: .leading) {
-                                        Text("3")
-                                            .foregroundColor(.white)
-                                            .font(.system(size: 20, weight: .semibold))
-
-                                        Text("Days Learned")
-                                            .foregroundColor(.white)
-                                            .font(.system(size: 12, weight: .regular))
-                                    }
-                                }
-                            }
-
-                            // Frozen box
-                            ZStack {
-                                Rectangle()
-                                    .fill(Color.coldBlue)
-                                    .cornerRadius(34)
-                                    .glassEffect()
-                                    .frame(width: 160, height: 70)
-
-                                HStack {
-                                    Image(systemName: "cube.fill")
-                                        .foregroundColor(.blue)
-                                        .font(.system(size: 15, weight: .bold))
-
-                                    VStack(alignment: .leading) {
-                                        Text("1")
-                                            .foregroundColor(.white)
-                                            .font(.system(size: 20, weight: .semibold))
-
-                                        Text("Day Frozen")
-                                            .foregroundColor(.white)
-                                            .font(.system(size: 12, weight: .regular))
-                                    }
-                                }
-                            }
+                            // Frozen Box
+                            progressBox(
+                                icon: "cube.fill",
+                                color: .coldBlue,
+                                count: viewModel.progress.daysFrozen,
+                                label: "Day Frozen",
+                                iconColor: .blue
+                            )
                         }
                     }
                 }
@@ -207,32 +173,27 @@ struct CalendarProgressCard: View {
                 .glassEffect(.clear, in: .rect(cornerRadius: 20))
             }
 
-            // Overlay Date Picker
-            if showPicker {
+            if viewModel.showPicker {
                 Color.black.opacity(0.3)
                     .ignoresSafeArea()
                     .onTapGesture {
-                        showPicker = false
+                        viewModel.showPicker = false
                     }
 
                 VStack(spacing: 0) {
                     Spacer()
-                    
+
                     VStack(spacing: 12) {
-                        DatePicker(
-                            "",
-                            selection: $selectedDate,
-                            displayedComponents: [.date]
-                        )
-                        .datePickerStyle(.wheel)
-                        .labelsHidden()
-                        .frame(maxHeight: 200)
-                        .clipped()
-                        .background(.ultraThinMaterial)
-                        .cornerRadius(20)
+                        DatePicker("", selection: $viewModel.selectedDate, displayedComponents: [.date])
+                            .datePickerStyle(.wheel)
+                            .labelsHidden()
+                            .frame(maxHeight: 200)
+                            .clipped()
+                            .background(.ultraThinMaterial)
+                            .cornerRadius(20)
 
                         Button("Done") {
-                            showPicker = false
+                            viewModel.showPicker = false
                         }
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundStyle(.orange)
@@ -240,39 +201,47 @@ struct CalendarProgressCard: View {
                     }
                 }
                 .transition(.move(edge: .bottom))
-                .animation(.easeInOut, value: showPicker)
+                .animation(.easeInOut, value: viewModel.showPicker)
             }
         }
     }
-    
-    // Get the 7 days of the current week (Sunday to Saturday)
-    private func getWeekDates() -> [Date] {
-        let calendar = Calendar.current
-        let today = selectedDate
-        
-        // Find the Sunday of the current week
-        let weekday = calendar.component(.weekday, from: today)
-        let daysFromSunday = weekday - 1
-        
-        guard let sunday = calendar.date(byAdding: .day, value: -daysFromSunday, to: today) else {
-            return []
-        }
-        
-        // Generate all 7 days of the week
-        return (0..<7).compactMap { dayOffset in
-            calendar.date(byAdding: .day, value: dayOffset, to: sunday)
+
+    // Helper View for Reuse
+    func progressBox(icon: String, color: Color, count: Int, label: String, iconColor: Color) -> some View {
+        ZStack {
+            Rectangle()
+                .fill(color)
+                .cornerRadius(34)
+                .opacity(0.8)
+                .glassEffect()
+                .frame(width: 160, height: 70)
+
+            HStack {
+                Image(systemName: icon)
+                    .foregroundColor(iconColor)
+                    .font(.system(size: 15, weight: .bold))
+
+                VStack(alignment: .leading) {
+                    Text("\(count)")
+                        .foregroundColor(.white)
+                        .font(.system(size: 20, weight: .semibold))
+
+                    Text(label)
+                        .foregroundColor(.white)
+                        .font(.system(size: 12, weight: .regular))
+                }
+            }
         }
     }
 }
 
-
 struct MonthYearPickerView: View {
     @Binding var selectedDate: Date
     @Binding var showPicker: Bool
+    var onWeekChange: (Int) -> Void
 
     var body: some View {
         HStack {
-            // Display current month and year
             Button(action: {
                 showPicker.toggle()
             }) {
@@ -289,9 +258,8 @@ struct MonthYearPickerView: View {
 
             Spacer()
 
-            // Navigation buttons - now navigate by week
             Button(action: {
-                adjustWeek(by: -1)
+                onWeekChange(-1)
             }) {
                 Image(systemName: "chevron.left")
                     .foregroundStyle(Color.orange)
@@ -300,20 +268,12 @@ struct MonthYearPickerView: View {
             .padding(.trailing, 20)
 
             Button(action: {
-                adjustWeek(by: 1)
+                onWeekChange(1)
             }) {
                 Image(systemName: "chevron.right")
                     .foregroundStyle(Color.orange)
                     .bold()
             }
-        }
-        .padding()
-    }
-
-    // Adjust by week instead of month
-    private func adjustWeek(by value: Int) {
-        if let newDate = Calendar.current.date(byAdding: .weekOfYear, value: value, to: selectedDate) {
-            selectedDate = newDate
         }
     }
 }
