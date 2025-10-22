@@ -9,6 +9,8 @@ import SwiftUI
 
 struct activityPage: View {
     @State private var isActive = false
+    @StateObject private var viewModel = ActionLoggerViewModel()
+
 
     var body: some View {
         NavigationStack {
@@ -20,11 +22,11 @@ struct activityPage: View {
                 Spacer().frame(height: 24)
                 
                 
-                Learnedbutton()
+                LearnedButton(viewModel: viewModel)
                 Spacer().frame(height: 32)
                 
                 
-                Freezedbutton()
+                FreezedButton(viewModel: viewModel)
                 Text("1 out of 2 Freezes used")
                     .font(Font.system(size: 14))
                     .foregroundStyle(Color.secondary)
@@ -180,29 +182,22 @@ struct CalendarProgressCard: View {
                         viewModel.showPicker = false
                     }
 
-                VStack(spacing: 0) {
+                VStack {
                     Spacer()
 
-                    VStack(spacing: 12) {
-                        DatePicker("", selection: $viewModel.selectedDate, displayedComponents: [.date])
-                            .datePickerStyle(.wheel)
-                            .labelsHidden()
-                            .frame(maxHeight: 200)
-                            .clipped()
-                            .background(.ultraThinMaterial)
-                            .cornerRadius(20)
-
-                        Button("Done") {
-                            viewModel.showPicker = false
-                        }
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(.orange)
+                    DatePicker("", selection: $viewModel.selectedDate, displayedComponents: [.date])
+                        .datePickerStyle(.wheel)
+                        .labelsHidden()
+                        .frame(maxHeight: 200)
+                        .clipped()
+                        .background(.ultraThinMaterial)
+                        .cornerRadius(20)
                         .padding(.bottom, 30)
-                    }
                 }
                 .transition(.move(edge: .bottom))
                 .animation(.easeInOut, value: viewModel.showPicker)
             }
+
         }
     }
 
@@ -281,53 +276,77 @@ struct MonthYearPickerView: View {
 
 
 //Log as Learned button
-struct Learnedbutton : View{
-    var body: some View{
-        Button("Log as Learned") {
-            /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Action@*/ /*@END_MENU_TOKEN@*/
+struct LearnedButton: View {
+    @ObservedObject var viewModel: ActionLoggerViewModel
+
+    var body: some View {
+        Button(action: {
+            viewModel.logAsLearned()
+        }) {
+            Text(viewModel.hasLogged ? "Learned Today" : "Log as Learned")
+                .bold()
+                .font(.system(size: 36))
+                .foregroundStyle(viewModel.hasLogged ? Color.richOrange : Color.white)
+                .padding(100)
         }
-        .bold()
-        .foregroundStyle(Color.white)
-        .font(.system(size: 36))
-        .padding(100)
+        .disabled(viewModel.hasLogged)
         .background(
             Circle()
-                .fill(Color.richOrange.opacity(0.95))
+                .fill(viewModel.hasLogged ? Color.brownishOrange.opacity(0.4) : Color.richOrange.opacity(0.95))
                 .overlay(
                     Circle()
-                .strokeBorder(
-                    AngularGradient(
-                        gradient: Gradient(colors: [
-                            Color.black.opacity(0.4),
-                            Color.white.opacity(0.6),
-                            Color.black.opacity(0.2),
-                            Color.white.opacity(0.9),
-                            Color.black.opacity(0.2),
-                            Color.black.opacity(0.4)
-                        ]),
-                        center: .center
-                    ),  lineWidth: 1
-                    
+                        .strokeBorder(
+                            AngularGradient(
+                                gradient: Gradient(colors: viewModel.hasLogged ?
+                                    [
+                                      //  Color.richOrange.opacity(0.4),
+                                        Color.orange.opacity(0.2),
+                                        Color.black.opacity(0.2),
+                                        Color.black.opacity(0.4),
+                                        Color.black.opacity(0.2),
+                                        Color.richOrange.opacity(0.2),
+                                        Color.orange.opacity(0.4),
+                                        Color.richOrange.opacity(0.3),
+                                        Color.black.opacity(0.2),
+                                        Color.black.opacity(0.4)
+                                    ] :
+                                    [
+                                        Color.black.opacity(0.4),
+                                        Color.white.opacity(0.6),
+                                        Color.black.opacity(0.2),
+                                        Color.white.opacity(0.9),
+                                        Color.black.opacity(0.2),
+                                        Color.black.opacity(0.4)
+                                    ]
+                                ),
+                                center: .center
+                            ),
+                            lineWidth: 1
+                        )
                 )
-                )
-              .glassEffect()
-              .glassEffect(.clear.interactive())
 
+                .glassEffect()
+                .glassEffect(.clear.interactive())
         )
+
     }
 }
 
+
 //Log as freezed
-struct Freezedbutton : View{
-    var body: some View{
+struct FreezedButton: View {
+    @ObservedObject var viewModel: ActionLoggerViewModel
+
+    var body: some View {
         Button("Log as Freezed") {
-            /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Action@*/ /*@END_MENU_TOKEN@*/
+            viewModel.logAsFreezed()
         }
+        .disabled(viewModel.hasLogged)
         .foregroundStyle(Color.white)
         .font(.system(size: 17))
-        .frame(width: 274,height:48)
+        .frame(width: 274, height: 48)
+        .background(viewModel.loggedType == .freezed ? Color.gray.opacity(0.6) : Color.clear)
         .glassEffect(.regular.tint(Color.lightBlue.opacity(0.65)).interactive())
-              
     }
 }
 
