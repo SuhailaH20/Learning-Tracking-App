@@ -236,13 +236,15 @@ struct DaysLearned: View{
 
 //Days Freezed Struct
 struct DaysFreezed: View{
+    @State private var freezesUsed: Int = 0
+
     var body: some View{
         HStack{
             Spacer().frame(width: 14)
             Image(systemName: "cube.fill").foregroundStyle(Color.blue).font(Font.system(size: 20))
             
             VStack(alignment:.leading){
-                Text("1").bold().font(.system(size: 24))
+                Text("\(freezesUsed)").bold().font(.system(size: 24))
                 Text("Days Freezed").font(.system(size: 12))
                 Spacer().frame(height: 6)
 
