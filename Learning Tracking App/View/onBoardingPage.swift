@@ -22,15 +22,19 @@ struct onBoardingPage: View {
                 StartLearningButton {
                     print("Topic: \(viewModel.topic)")
                     print("Timeframe: \(viewModel.selectedTimeframe)")
+                    print("Freeze limit: \(viewModel.freezeLimit)")
                     isActive = true
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
             }
             .padding(.horizontal, 24)
             .navigationDestination(isPresented: $isActive) {
-                activityPage()
-                    .navigationBarBackButtonHidden(true)
+                activityPage(
+                    learningProgress: LearningProgress(daysLearned: 0, daysFrozen: viewModel.freezeLimit)
+                )
+                .navigationBarBackButtonHidden(true)
             }
+
         }
     }
 }

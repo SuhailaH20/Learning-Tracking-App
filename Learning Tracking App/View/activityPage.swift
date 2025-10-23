@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct activityPage: View {
+    var learningProgress: LearningProgress
+
     var body: some View {
         VStack{
            CurrentNavigation()
@@ -31,7 +33,7 @@ struct activityPage: View {
             //FreezedbuttonOFF()
             //SetlearningGoal()
             
-            Text("1 out of 2 Freezes used")
+            Text("1 out of \(learningProgress.daysFrozen) Freezes used")
                 .font(Font.system(size: 14))
                 .foregroundStyle(Color.gray)
             
@@ -167,5 +169,7 @@ struct SetlearningGoal: View {
 }
 
 #Preview {
-    activityPage().preferredColorScheme(.dark)
+activityPage(
+    learningProgress: LearningProgress(daysLearned: 0, daysFrozen: 8)
+)
 }
