@@ -16,6 +16,7 @@ enum ActivityState {
 
 
 struct activityPage: View {
+    var topic: String
     @State private var activityState: ActivityState = .idle
     @State private var daysLearned: Int = 5
     @State private var freezesUsed: Int = 0
@@ -29,7 +30,7 @@ struct activityPage: View {
         VStack {
             CurrentNavigation()
             Spacer().frame(height: 24)
-            CurrentCard(freezesUsed: freezesUsed, daysLearned: daysLearned, learnedDates: learnedDates, frozenDates: frozenDates)
+            CurrentCard(topic: topic,freezesUsed: freezesUsed, daysLearned: daysLearned, learnedDates: learnedDates, frozenDates: frozenDates)
             Spacer().frame(height: 32)
 
             // MARK: - Main "Learned" Button
@@ -251,6 +252,7 @@ struct SetlearningGoal: View {
 
 #Preview {
 activityPage(
+    topic:"hello",
     learningProgress: LearningProgress(daysLearned: 8, daysFrozen: 8)
 )
 }

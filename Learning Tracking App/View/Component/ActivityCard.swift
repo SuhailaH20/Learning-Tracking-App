@@ -8,6 +8,7 @@ import SwiftUI
 
 //Card Struct
 struct CurrentCard: View {
+    var topic: String
     var freezesUsed: Int
     var daysLearned: Int
 
@@ -24,7 +25,7 @@ struct CurrentCard: View {
                     Spacer().frame(height: 12)
                     Divider()
                     Spacer().frame(height: 11.5)
-                    Text("Learning Swift")
+                    Text("Learning \(topic)")
                         .bold()
                         .padding(.horizontal)
                     Spacer().frame(height: 12)
@@ -123,44 +124,53 @@ struct CalendarHorizontalView: View {
         VStack {
             // Month bar
             HStack {
-                Text(monthYear).bold()
-                Button(action: {
-                    let comps = Calendar.current.dateComponents([.year, .month], from: currentDate)
-                    selectedMonth = (comps.month ?? 1) - 1
-                    selectedYear = comps.year ?? selectedYear
-                    showingDatePicker = true
-                }) {
-                    Image(systemName: showingDatePicker ? "chevron.down" : "chevron.right")
-                        .foregroundColor(.orange)
-                        .bold()
-                }
-                .popover(isPresented: $showingDatePicker, arrowEdge: .top) {
-                    VStack(spacing: 16) {
-                        HStack(spacing: 0) {
-                            Picker("Month", selection: $selectedMonth) {
-                                ForEach(0..<12, id: \.self) { index in
-                                    Text(DateFormatter().monthSymbols[index]).tag(index)
-                                }
-                            }
-                            .pickerStyle(.wheel)
-                            .frame(maxWidth: .infinity)
+                       Text(monthYear).bold()
+                       Button(action: {
+                           // Initialize wheels from currentDate whenever opening
+                           let comps = Calendar.current.dateComponents([.year, .month], from: currentDate)
+                           selectedMonth = (comps.month ?? 1) - 1
+                           selectedYear = comps.year ?? selectedYear
+                           showingDatePicker = true
+                       }) {
+                           Image(systemName: showingDatePicker ? "chevron.down" : "chevron.right")
+                               .foregroundColor(.orange)
+                               .bold()
+                       }
+                       .popover(isPresented: $showingDatePicker, arrowEdge: .top) {
+                           VStack(spacing: 16) {
+                               HStack(spacing:0) {
+                                   // Month wheel
+                                   Picker("Month", selection: $selectedMonth) {
+                                       ForEach(0..<12, id: \.self) { index in
+                                           Text(DateFormatter().monthSymbols[index]).tag(index)
+                                       }
+                                   }
+                                   .pickerStyle(.wheel)
+                                   .frame(maxWidth: .infinity)
 
-                            let currentYear = Calendar.current.component(.year, from: Date())
-                            let lowerBoundYear = 1900
-                            Picker("Year", selection: $selectedYear) {
-                                ForEach(lowerBoundYear...(currentYear + 50), id: \.self) { year in
-                                    Text(String(year)).tag(year)
-                                }
-                            }
-                            .pickerStyle(.wheel)
-                            .frame(maxWidth: .infinity)
-                        }
-                        .labelsHidden()
-                        .onChange(of: selectedMonth) { _, _ in applyMonthYearSelection() }
-                        .onChange(of: selectedYear) { _, _ in applyMonthYearSelection() }
-                    }
-                    .padding()
-                }
+                                   // Year wheel (before 2025 and forward, default to current year)
+                                   let currentYear = Calendar.current.component(.year, from: Date())
+                                   let lowerBoundYear = 1900 // adjust as needed
+                                   Picker("Year", selection: $selectedYear) {
+                                       ForEach(lowerBoundYear...(currentYear + 50), id: \.self) { year in
+                                           // Force plain string to avoid locale grouping separators like "2,025"
+                                           Text(String(year)).tag(year)
+                                       }
+                                   }
+                                   .pickerStyle(.wheel)
+                                   .frame(maxWidth: .infinity)
+                               }
+                               .labelsHidden()
+                               .onChange(of: selectedMonth) { _, _ in
+                                   applyMonthYearSelection()
+                               }
+                               .onChange(of: selectedYear) { _, _ in
+                                   applyMonthYearSelection()
+                               }
+                           }
+                           .presentationCompactAdaptation(.popover)
+                           .padding()
+                       }
                 Spacer()
                 Button(action: { moveMonth(-1) }) {
                     Image(systemName: "chevron.left").foregroundColor(.orange).bold()

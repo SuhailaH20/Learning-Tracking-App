@@ -30,6 +30,7 @@ struct onBoardingPage: View {
             .padding(.horizontal, 24)
             .navigationDestination(isPresented: $isActive) {
                 activityPage(
+                    topic: viewModel.topic,
                     learningProgress: LearningProgress(daysLearned: 0, daysFrozen: viewModel.freezeLimit)
                 )
                 .navigationBarBackButtonHidden(true)
