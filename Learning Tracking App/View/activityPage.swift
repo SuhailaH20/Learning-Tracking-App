@@ -7,62 +7,175 @@
 
 import SwiftUI
 
+enum ActivityState {
+    case idle
+    case learnedToday
+    case dayFrozen
+    case goalCompleted
+}
+
+
 struct activityPage: View {
+    @State private var activityState: ActivityState = .idle
+    @State private var daysLearned: Int = 6
+    @State private var freezesUsed: Int = 0
+    @State private var isFreezeDisabled: Bool = false
+
     var learningProgress: LearningProgress
 
     var body: some View {
-        VStack{
-           CurrentNavigation()
+        VStack {
+            CurrentNavigation()
             Spacer().frame(height: 24)
-            //Card
             CurrentCard()
-            
             Spacer().frame(height: 32)
 
-            //BUTTON LOG AS LEARNED
-          //  LearnedBIGbutton()
-            LearnedTodayBIGbutton()
-           //DayFreezedBIGbutton()
-           // WellDone()
-            
-            
+            // MARK: - Main "Learned" Button
+            Group {
+                switch activityState {
+                case .idle:
+                    LearnedBIGbutton {
+                        logAsLearned()
+                        
+                    }
+
+                case .learnedToday:
+                    LearnedTodayBIGbutton()
+                        .disabled(true)
+
+                case .dayFrozen:
+                    DayFreezedBIGbutton()
+                        .disabled(true)
+
+                case .goalCompleted:
+                    WellDone()
+                }
+            }
+
             Spacer().frame(height: 32)
 
-            // BUTTON LOG AS FREEZED
-            Freezedbutton()
-            //FreezedbuttonOFF()
-            //SetlearningGoal()
-            
-            Text("1 out of \(learningProgress.daysFrozen) Freezes used")
-                .font(Font.system(size: 14))
+            // MARK: - Freeze Button (always visible)
+            if isFreezeDisabled {
+                FreezedbuttonOFF()
+                    .disabled(true)
+            } else {
+                Freezedbutton {
+                    freezeDay()
+                }
+            }
+
+            // MARK: - Status Text
+            Text("\(freezesUsed) out of \(learningProgress.daysFrozen) Freezes used")
+                .font(.system(size: 14))
                 .foregroundStyle(Color.gray)
-            
-            
-//            Text("Set same learning goal and duration").foregroundStyle(Color.orange).padding(8)
+        }
+    }
 
+    // MARK: - Functions
+    private func logAsLearned() {
+        daysLearned += 1
+        if daysLearned >= learningProgress.daysFrozen {
+            activityState = .goalCompleted
+        } else {
+            activityState = .learnedToday
+            isFreezeDisabled = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 60) {
+                activityState = .idle
+                
+                
+            }
+        }
+    }
+
+    private func freezeDay() {
+        guard !isFreezeDisabled else { return }
+        guard freezesUsed < learningProgress.daysFrozen else { return }
+
+        freezesUsed += 1
+        isFreezeDisabled = true
+        activityState = .dayFrozen
+
+        // Re-enable after 1 minute
+        DispatchQueue.main.asyncAfter(deadline: .now() + 60) {
+            isFreezeDisabled = false
+            activityState = .idle
         }
     }
 }
+
+
 
 
 //Log as Learned button
-struct LearnedBIGbutton : View{
-    var body: some View{
-        Button("Log as\nLearned") {
-            /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Action@*/ /*@END_MENU_TOKEN@*/
-        }
-        .bold()
-        .foregroundStyle(Color.white)
-        .font(.system(size: 36))
-        .frame(width:274,height:274)
-        .background(
-            Circle()
-                .fill(Color.richOrange.opacity(0.95))
-                .glassEffect(.clear.interactive())
+struct LearnedBIGbutton: View {
+    var action: () -> Void
 
-        )
+    var body: some View {
+        Button(action: action) {
+            Text("Log as\nLearned")
+                .bold()
+                .foregroundStyle(Color.white)
+                .font(.system(size: 36))
+                .frame(width: 274, height: 274)
+                .background(
+                    Circle()
+                        .fill(Color.richOrange.opacity(0.95))
+                        .glassEffect(.clear.interactive())
+                )
+        }
     }
 }
+
+struct Freezedbutton: View {
+    var action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text("Log as Freezed")
+                .foregroundStyle(Color.white)
+                .font(.system(size: 17))
+                .frame(width: 274, height: 48)
+                .glassEffect(.regular.tint(Color.lightBlue.opacity(0.65)).interactive())
+        }
+    }
+}
+
+struct FreezedbuttonOFF: View {
+    var body: some View {
+        Button("Log as Freezed") {}
+            .foregroundStyle(Color.white)
+            .font(.system(size: 17))
+            .frame(width: 274, height: 48)
+            .glassEffect(.regular.tint(Color.coldBlue.opacity(0.4)).interactive())
+    }
+}
+
+
+//----------- WELL DONE GOAL COMPLETED----------
+
+struct WellDone: View{
+    var body: some View{
+        VStack(alignment:.center){
+            
+            Image(systemName: "hands.and.sparkles.fill").foregroundStyle(Color.orange)
+                .font(Font.system(size: 40))
+                .padding(1)
+            
+            Text("Well Done!")
+                .bold()
+                .font(Font.system(size: 22))
+            Spacer().frame(height: 4)
+            Text("Goal completed! start learning again or set new learning goal")
+                .multilineTextAlignment(.center)
+                .lineSpacing(5)
+                .foregroundStyle(Color.gray)
+                .font(Font.system(size: 18))
+                .fontWeight(.medium)
+        }
+            .padding(24)
+    }
+}
+        // ---------SMALL BUTTON---------
 
 //Learned today button
 struct LearnedTodayBIGbutton : View{
@@ -92,65 +205,13 @@ struct DayFreezedBIGbutton : View{
         .bold()
         .foregroundStyle(Color.lightBlue)
         .font(.system(size: 38))
-        .padding(100)
+        .frame(width:274,height:274)
         .background(
             Circle()
                 .fill(Color.coldBlue.opacity(0.95))
                 .glassEffect(.clear.interactive())
 
         )
-    }
-}
-//----------- WELL DONE GOAL COMPLETED----------
-
-struct WellDone: View{
-    var body: some View{
-        VStack(alignment:.center){
-            
-            Image(systemName: "hands.and.sparkles.fill").foregroundStyle(Color.orange)
-                .font(Font.system(size: 40))
-                .padding(1)
-            
-            Text("Well Done!")
-                .bold()
-                .font(Font.system(size: 22))
-            Spacer().frame(height: 4)
-            Text("Goal completed! start learning again or set new learning goal")
-                .multilineTextAlignment(.center)
-                .lineSpacing(5)
-                .foregroundStyle(Color.gray)
-                .font(Font.system(size: 18))
-                .fontWeight(.medium)
-        }
-            .padding(24)
-    }
-}
-        // ---------SMALL BUTTON---------
-
-//Log as freezed
-struct Freezedbutton : View{
-    var body: some View{
-        Button("Log as Freezed") {
-            /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Action@*/ /*@END_MENU_TOKEN@*/
-        }
-        .foregroundStyle(Color.white)
-        .font(.system(size: 17))
-        .frame(width: 274,height:48)
-        .glassEffect(.regular.tint(Color.lightBlue.opacity(0.65)).interactive())
-              
-    }
-}
-//Log as freezed OFF
-struct FreezedbuttonOFF : View{
-    var body: some View{
-        Button("Log as Freezed") {
-            /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Action@*/ /*@END_MENU_TOKEN@*/
-        }
-        .foregroundStyle(Color.white)
-        .font(.system(size: 17))
-        .frame(width: 274,height:48)
-        .glassEffect(.regular.tint(Color.coldBlue.opacity(0.4)).interactive())
-              
     }
 }
 
@@ -170,6 +231,6 @@ struct SetlearningGoal: View {
 
 #Preview {
 activityPage(
-    learningProgress: LearningProgress(daysLearned: 0, daysFrozen: 8)
+    learningProgress: LearningProgress(daysLearned: 8, daysFrozen: 8)
 )
 }
