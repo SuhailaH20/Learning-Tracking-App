@@ -8,6 +8,9 @@ import SwiftUI
 
 //Card Struct
 struct CurrentCard: View {
+    var freezesUsed: Int
+    var daysLearned: Int
+
     var body: some View {
         GlassEffectContainer {
             HStack {
@@ -24,13 +27,13 @@ struct CurrentCard: View {
                     HStack{
                         Spacer()
                         //Days learned
-                        DaysLearned()
+                        DaysLearned(daysLearned: daysLearned)
                         
                         Spacer().frame(width:13)
 
                         //Days freezed
                         
-                        DaysFreezed()
+                        DaysFreezed(freezesUsed: freezesUsed)
                         Spacer()
                     }
                     Spacer().frame(height: 12)
@@ -217,6 +220,7 @@ struct CalendarHorizontalView: View {
 
 //Days Learned Struct
 struct DaysLearned: View{
+    var daysLearned: Int
     var body: some View{
         HStack{
             Spacer().frame(width: 12)
@@ -224,7 +228,7 @@ struct DaysLearned: View{
             
             
             VStack(alignment:.leading){
-                Text("3").bold().font(.system(size: 24))
+                Text("\(daysLearned)").bold().font(.system(size: 24))
                 Text("Days Learned").font(.system(size: 12))
                 Spacer().frame(height: 6)
             }.frame(width: 78,height: 49)
@@ -235,23 +239,32 @@ struct DaysLearned: View{
 }
 
 //Days Freezed Struct
-struct DaysFreezed: View{
-    @State private var freezesUsed: Int = 0
+struct DaysFreezed: View {
+    var freezesUsed: Int
 
-    var body: some View{
-        HStack{
+    var body: some View {
+        HStack {
             Spacer().frame(width: 14)
-            Image(systemName: "cube.fill").foregroundStyle(Color.blue).font(Font.system(size: 20))
+            Image(systemName: "cube.fill")
+                .foregroundStyle(Color.blue)
+                .font(.system(size: 20))
             
-            VStack(alignment:.leading){
-                Text("\(freezesUsed)").bold().font(.system(size: 24))
-                Text("Days Freezed").font(.system(size: 12))
+            VStack(alignment: .leading) {
+                Text("\(freezesUsed)")
+                    .bold()
+                    .font(.system(size: 24))
+                
+                Text(freezesUsed == 1 ? "Day Freezed" : "Days Freezed")
+                    .font(.system(size: 12))
+                    .animation(.easeInOut(duration: 0.2), value: freezesUsed)
+                
                 Spacer().frame(height: 6)
-
-            }.frame(width: 78,height: 49)
+            }
+            .frame(width: 78, height: 49)
+            
             Spacer().frame(width: 14)
         }
-        .frame(width: 180 ,height:79)
+        .frame(width: 180, height: 79)
         .glassEffect(.regular.tint(Color.cyan.opacity(0.2)))
     }
 }

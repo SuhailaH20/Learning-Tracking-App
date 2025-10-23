@@ -27,7 +27,7 @@ struct activityPage: View {
         VStack {
             CurrentNavigation()
             Spacer().frame(height: 24)
-            CurrentCard()
+            CurrentCard(freezesUsed: freezesUsed, daysLearned: daysLearned)
             Spacer().frame(height: 32)
 
             // MARK: - Main "Learned" Button
