@@ -81,4 +81,15 @@ class CalendarViewModel: ObservableObject {
     func dayNumber(from date: Date) -> Int {
         return calendar.component(.day, from: date)
     }
+    
+    func isFreezed(_ date: Date) -> Bool {
+        // Replace with your actual logic
+        return calendar.component(.day, from: date) % 5 == 0 // Example: every 5th day is "freezed"
+    }
+
+    func isLogged(_ date: Date) -> Bool {
+        // Replace with your actual logic
+        return calendar.component(.day, from: date) % 3 == 0 // Example: every 3rd day is "logged"
+    }
+
 }

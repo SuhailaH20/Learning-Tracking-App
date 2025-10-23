@@ -107,17 +107,44 @@ struct CalendarDayView: View {
                 .frame(maxWidth: .infinity)
         } else {
             ZStack {
+                // Background style
                 Circle()
                     .frame(width: 40, height: 40)
-                    .foregroundStyle(Color.richOrange).opacity(0.2)
+                    .foregroundStyle(backgroundColor(for: date))
                     .glassEffect()
 
+                // Day number style
                 Text("\(viewModel.dayNumber(from: date))")
                     .font(.system(size: 24, weight: .medium))
-                    .foregroundStyle(Color.orange)
+                    .foregroundStyle(textColor(for: date))
                     .padding(1)
-                   
             }
+        }
+    }
+
+    // MARK: - Styling Helpers
+
+    func backgroundColor(for date: Date) -> Color {
+        if viewModel.isToday(date) {
+            return Color.richOrange
+        } else if viewModel.isFreezed(date) {
+            return Color.cyan.opacity(0.3)
+        } else if viewModel.isLogged(date) {
+            return Color.richOrange.opacity(0.2)
+        } else {
+            return Color.clear
+        }
+    }
+
+    func textColor(for date: Date) -> Color {
+        if viewModel.isToday(date) {
+            return Color.white
+        } else if viewModel.isFreezed(date) {
+            return Color.cyan
+        } else if viewModel.isLogged(date) {
+            return Color.orange
+        } else {
+            return Color.primary
         }
     }
 }
