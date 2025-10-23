@@ -20,6 +20,8 @@ struct activityPage: View {
     @State private var daysLearned: Int = 5
     @State private var freezesUsed: Int = 0
     @State private var isFreezeDisabled: Bool = false
+    @State private var learnedDates: [Date] = []
+    @State private var frozenDates: [Date] = []
 
     var learningProgress: LearningProgress
 
@@ -27,7 +29,7 @@ struct activityPage: View {
         VStack {
             CurrentNavigation()
             Spacer().frame(height: 24)
-            CurrentCard(freezesUsed: freezesUsed, daysLearned: daysLearned)
+            CurrentCard(freezesUsed: freezesUsed, daysLearned: daysLearned, learnedDates: learnedDates, frozenDates: frozenDates)
             Spacer().frame(height: 32)
 
             // MARK: - Main "Learned" Button
@@ -89,6 +91,7 @@ struct activityPage: View {
     // MARK: - Functions
     private func logAsLearned() {
         daysLearned += 1
+        learnedDates.append(Date())
         // Check if the goal is completed
         if daysLearned >= learningProgress.daysFrozen {
             activityState = .goalCompleted
@@ -109,6 +112,7 @@ struct activityPage: View {
         guard freezesUsed < learningProgress.daysFrozen else { return }
 
         freezesUsed += 1
+        frozenDates.append(Date())
         isFreezeDisabled = true
         activityState = .dayFrozen
 
