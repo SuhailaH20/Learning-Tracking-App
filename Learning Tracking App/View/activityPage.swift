@@ -12,38 +12,38 @@ import SwiftUI
 
 struct activityPage: View {
     var topic: String
-    @State private var activityState: ActivityState = .idle
-    @State private var daysLearned: Int = 0
-    @State private var freezesUsed: Int = 0
-    @State private var isFreezeDisabled: Bool = false
-    @State private var learnedDates: [Date] = []
-    @State private var frozenDates: [Date] = []
+    @StateObject private var viewModel: ActivityPageViewModel
 
-    var learningProgress: LearningProgress
+    init(topic: String, learningProgress: LearningProgress) {
+        self.topic = topic
+        _viewModel = StateObject(wrappedValue: ActivityPageViewModel(learningProgress: learningProgress))
+    }
 
     var body: some View {
         VStack {
             CurrentNavigation()
             Spacer().frame(height: 24)
-            CurrentCard(topic: topic,freezesUsed: freezesUsed, daysLearned: daysLearned, learnedDates: learnedDates, frozenDates: frozenDates)
+            CurrentCard(
+                topic: topic,
+                freezesUsed: viewModel.freezesUsed,
+                daysLearned: viewModel.daysLearned,
+                learnedDates: viewModel.learnedDates,
+                frozenDates: viewModel.frozenDates
+            )
+
             Spacer().frame(height: 32)
 
-            // MARK: - Main "Learned" Button
+            // MARK: - Main Button
             Group {
-                switch activityState {
+                switch viewModel.activityState {
                 case .idle:
                     LearnedBIGbutton {
-                        logAsLearned()
+                        viewModel.logAsLearned()
                     }
-
                 case .learnedToday:
-                    LearnedTodayBIGbutton()
-                        .disabled(true)
-
+                    LearnedTodayBIGbutton().disabled(true)
                 case .dayFrozen:
-                    DayFreezedBIGbutton()
-                        .disabled(true)
-
+                    DayFreezedBIGbutton().disabled(true)
                 case .goalCompleted:
                     WellDone()
                 }
@@ -51,74 +51,37 @@ struct activityPage: View {
 
             Spacer().frame(height: 32)
 
-            // MARK: - Freeze Button Section
-            switch activityState {
+            // MARK: - Freeze Button
+            switch viewModel.activityState {
             case .goalCompleted:
-                // Replace with "Set new goal" button
                 SetlearningGoal()
             default:
-                // Normal freeze button behavior
-                if isFreezeDisabled {
-                    FreezedbuttonOFF()
-                        .disabled(true)
+                if viewModel.isFreezeDisabled {
+                    FreezedbuttonOFF().disabled(true)
                 } else {
                     Freezedbutton {
-                        freezeDay()
+                        viewModel.freezeDay()
                     }
                 }
             }
 
-            // MARK: - Bottom Text Section
-            switch activityState {
+            // MARK: - Bottom Text
+            switch viewModel.activityState {
             case .goalCompleted:
                 Text("Set same learning goal and duration")
                     .foregroundStyle(Color.orange)
                     .font(.system(size: 16))
                     .padding(.top, 8)
             default:
-                Text("\(freezesUsed) out of \(learningProgress.daysFrozen) Freezes used")
+                Text("\(viewModel.freezesUsed) out of \(viewModel.learningProgress.daysFrozen) Freezes used")
                     .font(.system(size: 14))
                     .foregroundStyle(Color.gray)
                     .padding(.top, 8)
             }
         }
     }
-
-    // MARK: - Functions
-    private func logAsLearned() {
-        daysLearned += 1
-        learnedDates.append(Date())
-        // Check if the goal is completed
-        if daysLearned >= learningProgress.daysFrozen {
-            activityState = .goalCompleted
-        } else {
-            // Temporary learned today state
-            activityState = .learnedToday
-            isFreezeDisabled = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + 60) {
-                activityState = .idle
-                isFreezeDisabled = false
-
-            }
-        }
-    }
-
-    private func freezeDay() {
-        guard !isFreezeDisabled else { return }
-        guard freezesUsed < learningProgress.daysFrozen else { return }
-
-        freezesUsed += 1
-        frozenDates.append(Date())
-        isFreezeDisabled = true
-        activityState = .dayFrozen
-
-        // Re-enable after 1 minute
-        DispatchQueue.main.asyncAfter(deadline: .now() + 60) {
-            isFreezeDisabled = false
-            activityState = .idle
-        }
-    }
 }
+
 
 
 
