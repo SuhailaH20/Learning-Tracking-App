@@ -74,13 +74,7 @@ struct CurrentNavigation: View {
     }
 }
 
-enum DayStatus {
-    case current
-    case learned
-    case frozen
-    case normal
 
-}
 
 //Calendar Struct
 struct CalendarHorizontalView: View {

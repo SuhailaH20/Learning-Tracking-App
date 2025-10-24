@@ -7,12 +7,7 @@
 
 import SwiftUI
 
-enum ActivityState {
-    case idle
-    case learnedToday
-    case dayFrozen
-    case goalCompleted
-}
+
 
 
 struct activityPage: View {
