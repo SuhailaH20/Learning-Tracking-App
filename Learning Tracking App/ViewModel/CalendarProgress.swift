@@ -5,37 +5,104 @@
 //  Created by Suhaylah hawsawi on 29/04/1447 AH.
 //
 
-import Foundation
 import SwiftUI
 import Combine
 
-class CalendarProgressViewModel: ObservableObject {
-    @Published var selectedDate: Date = Date()
-    @Published var showPicker: Bool = false
+@MainActor
+final class CalendarHorizontalViewModel: ObservableObject {
+    // MARK: - Published Properties
+    @Published var currentDate: Date = Date()
+    @Published var date: Date = Date()
+    @Published var showingDatePicker: Bool = false
+    @Published var selectedMonth: Int
+    @Published var selectedYear: Int
 
-    // Static for now, but this can be dynamic based on actual data
-    @Published var progress = LearningProgress(daysLearned: 3, daysFrozen: 1)
+    let learnedDates: [Date]
+    let frozenDates: [Date]
+
+    // MARK: - Init
+    init(learnedDates: [Date], frozenDates: [Date]) {
+        self.learnedDates = learnedDates
+        self.frozenDates = frozenDates
+
+        let now = Date()
+        selectedMonth = Calendar.current.component(.month, from: now) - 1
+        selectedYear = Calendar.current.component(.year, from: now)
+    }
+
+    // MARK: - Computed Properties
+
+    var monthYear: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM yyyy"
+        return formatter.string(from: currentDate)
+    }
+
+    var weekDays: [String] {
+        let formatter = DateFormatter()
+        return formatter.shortWeekdaySymbols
+    }
 
     var weekDates: [Date] {
         let calendar = Calendar.current
-        let today = selectedDate
+        let startOfWeek = calendar.date(
+            from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: currentDate)
+        )!
+        return (0..<7).compactMap { calendar.date(byAdding: .day, value: $0, to: startOfWeek) }
+    }
 
-        // Get Sunday of the week
-        let weekday = calendar.component(.weekday, from: today)
-        let daysFromSunday = weekday - 1
+    // MARK: - Logic
 
-        guard let sunday = calendar.date(byAdding: .day, value: -daysFromSunday, to: today) else {
-            return []
-        }
-
-        return (0..<7).compactMap { offset in
-            calendar.date(byAdding: .day, value: offset, to: sunday)
+    func moveMonth(_ value: Int) {
+        if let newDate = Calendar.current.date(byAdding: .weekOfYear, value: value, to: currentDate) {
+            currentDate = newDate
         }
     }
 
-    func adjustWeek(by value: Int) {
-        if let newDate = Calendar.current.date(byAdding: .weekOfYear, value: value, to: selectedDate) {
-            selectedDate = newDate
+    func applyMonthYearSelection() {
+        var comps = DateComponents()
+        comps.year = selectedYear
+        comps.month = selectedMonth + 1
+        comps.day = 1
+        if let composed = Calendar.current.date(from: comps) {
+            currentDate = composed
+        }
+    }
+
+    func firstDayOfMonth(for date: Date) -> Date {
+        let calendar = Calendar.current
+        let comps = calendar.dateComponents([.year, .month], from: date)
+        return calendar.date(from: comps) ?? date
+    }
+
+    func statusForDate(_ date: Date) -> DayStatus {
+        let calendar = Calendar.current
+        if calendar.isDateInToday(date) {
+            return .current
+        } else if learnedDates.contains(where: { calendar.isDate($0, inSameDayAs: date) }) {
+            return .learned
+        } else if frozenDates.contains(where: { calendar.isDate($0, inSameDayAs: date) }) {
+            return .frozen
+        } else {
+            return .normal
+        }
+    }
+
+    func backgroundColor(for status: DayStatus) -> Color {
+        switch status {
+        case .current: return Color.orange
+        case .learned: return Color.orange.opacity(0.2)
+        case .frozen:  return Color.coldBlue
+        case .normal:  return Color.clear
+        }
+    }
+
+    func textColor(for status: DayStatus) -> Color {
+        switch status {
+        case .current: return .white
+        case .learned: return .orange
+        case .frozen:  return .cyan
+        case .normal:  return .white
         }
     }
 }

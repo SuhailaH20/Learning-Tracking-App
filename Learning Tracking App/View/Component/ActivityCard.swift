@@ -80,113 +80,95 @@ struct CurrentNavigation: View {
 
 
 //Calendar Struct
+
 struct CalendarHorizontalView: View {
-    @State private var currentDate = Date()
-    @State private var date = Date()
-    @State private var showingDatePicker = false
+    @StateObject private var viewModel: CalendarHorizontalViewModel
 
-    @State private var selectedMonth: Int = Calendar.current.component(.month, from: Date()) - 1
-    @State private var selectedYear: Int = Calendar.current.component(.year, from: Date())
-
-    
-    var learnedDates: [Date]
-    var frozenDates: [Date]
-    // Example: which dates are learned or frozen — later, replace with real data
-//    let learnedDates: [Date] = [
-//        Calendar.current.date(byAdding: .day, value: -1, to: Date())!,
-//        Calendar.current.date(byAdding: .day, value: -3, to: Date())!
-//    ]
-//    let frozenDates: [Date] = [
-//        Calendar.current.date(byAdding: .day, value: -2, to: Date())!
-//    ]
-
-    private var monthYear: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMMM yyyy"
-        return formatter.string(from: currentDate)
-    }
-
-    private var weekDays: [String] {
-        let formatter = DateFormatter()
-        return formatter.shortWeekdaySymbols
-    }
-
-    private var weekDates: [Date] {
-        let calendar = Calendar.current
-        let startOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: currentDate))!
-        return (0..<7).compactMap { calendar.date(byAdding: .day, value: $0, to: startOfWeek) }
+    init(learnedDates: [Date], frozenDates: [Date]) {
+        _viewModel = StateObject(
+            wrappedValue: CalendarHorizontalViewModel(
+                learnedDates: learnedDates,
+                frozenDates: frozenDates
+            )
+        )
     }
 
     var body: some View {
         VStack {
-            // Month bar
+            // MARK: - Month Bar
             HStack {
-                       Text(monthYear).bold()
-                       Button(action: {
-                           // Initialize wheels from currentDate whenever opening
-                           let comps = Calendar.current.dateComponents([.year, .month], from: currentDate)
-                           selectedMonth = (comps.month ?? 1) - 1
-                           selectedYear = comps.year ?? selectedYear
-                           showingDatePicker = true
-                       }) {
-                           Image(systemName: showingDatePicker ? "chevron.down" : "chevron.right")
-                               .foregroundColor(.orange)
-                               .bold()
-                       }
-                       .popover(isPresented: $showingDatePicker, arrowEdge: .top) {
-                           VStack(spacing: 16) {
-                               HStack(spacing:0) {
-                                   // Month wheel
-                                   Picker("Month", selection: $selectedMonth) {
-                                       ForEach(0..<12, id: \.self) { index in
-                                           Text(DateFormatter().monthSymbols[index]).tag(index)
-                                       }
-                                   }
-                                   .pickerStyle(.wheel)
-                                   .frame(maxWidth: .infinity)
+                Text(viewModel.monthYear).bold()
 
-                                   // Year wheel (before 2025 and forward, default to current year)
-                                   let currentYear = Calendar.current.component(.year, from: Date())
-                                   let lowerBoundYear = 1900 // adjust as needed
-                                   Picker("Year", selection: $selectedYear) {
-                                       ForEach(lowerBoundYear...(currentYear + 50), id: \.self) { year in
-                                           // Force plain string to avoid locale grouping separators like "2,025"
-                                           Text(String(year)).tag(year)
-                                       }
-                                   }
-                                   .pickerStyle(.wheel)
-                                   .frame(maxWidth: .infinity)
-                               }
-                               .labelsHidden()
-                               .onChange(of: selectedMonth) { _, _ in
-                                   applyMonthYearSelection()
-                               }
-                               .onChange(of: selectedYear) { _, _ in
-                                   applyMonthYearSelection()
-                               }
-                           }
-                           .presentationCompactAdaptation(.popover)
-                           .padding()
-                       }
-                Spacer()
-                Button(action: { moveMonth(-1) }) {
-                    Image(systemName: "chevron.left").foregroundColor(.orange).bold()
+                Button(action: {
+                    let comps = Calendar.current.dateComponents([.year, .month], from: viewModel.currentDate)
+                    viewModel.selectedMonth = (comps.month ?? 1) - 1
+                    viewModel.selectedYear = comps.year ?? viewModel.selectedYear
+                    viewModel.showingDatePicker = true
+                }) {
+                    Image(systemName: viewModel.showingDatePicker ? "chevron.down" : "chevron.right")
+                        .foregroundColor(.orange)
+                        .bold()
                 }
+                .popover(isPresented: $viewModel.showingDatePicker, arrowEdge: .top) {
+                    VStack(spacing: 16) {
+                        HStack(spacing: 0) {
+                            // Month Wheel
+                            Picker("Month", selection: $viewModel.selectedMonth) {
+                                ForEach(0..<12, id: \.self) { index in
+                                    Text(DateFormatter().monthSymbols[index]).tag(index)
+                                }
+                            }
+                            .pickerStyle(.wheel)
+                            .frame(maxWidth: .infinity)
+
+                            // Year Wheel
+                            let currentYear = Calendar.current.component(.year, from: Date())
+                            let lowerBoundYear = 1900
+                            Picker("Year", selection: $viewModel.selectedYear) {
+                                ForEach(lowerBoundYear...(currentYear + 50), id: \.self) { year in
+                                    Text(String(year)).tag(year)
+                                }
+                            }
+                            .pickerStyle(.wheel)
+                            .frame(maxWidth: .infinity)
+                        }
+                        .labelsHidden()
+                        .onChange(of: viewModel.selectedMonth) { _, _ in
+                            viewModel.applyMonthYearSelection()
+                        }
+                        .onChange(of: viewModel.selectedYear) { _, _ in
+                            viewModel.applyMonthYearSelection()
+                        }
+                    }
+                    .padding()
+                }
+
+                Spacer()
+
+                Button(action: { viewModel.moveMonth(-1) }) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.orange)
+                        .bold()
+                }
+
                 Spacer().frame(width: 28)
-                Button(action: { moveMonth(1) }) {
-                    Image(systemName: "chevron.right").foregroundColor(.orange).bold()
+
+                Button(action: { viewModel.moveMonth(1) }) {
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(.orange)
+                        .bold()
                 }
             }
 
             Spacer().frame(height: 15)
 
-            // Week display
+            // MARK: - Week Display
             HStack(spacing: 9) {
-                ForEach(Array(weekDates.enumerated()), id: \.offset) { _, date in
-                    let status = statusForDate(date)
+                ForEach(Array(viewModel.weekDates.enumerated()), id: \.offset) { _, date in
+                    let status = viewModel.statusForDate(date)
                     VStack {
-                        Text(weekDays[Calendar.current.component(.weekday, from: date) - 1])
-                            .foregroundColor(Color.gray)
+                        Text(viewModel.weekDays[Calendar.current.component(.weekday, from: date) - 1])
+                            .foregroundColor(.gray)
                             .bold()
                             .font(.subheadline)
 
@@ -196,78 +178,20 @@ struct CalendarHorizontalView: View {
                             .frame(width: 44, height: 44)
                             .background(
                                 Circle()
-                                    .fill(backgroundColor(for: status))
+                                    .fill(viewModel.backgroundColor(for: status))
                             )
-                            .foregroundColor(textColor(for: status))
+                            .foregroundColor(viewModel.textColor(for: status))
                     }
                 }
             }
         }
         .padding()
-        .onChange(of: currentDate) { _, newValue in
-            date = firstDayOfMonth(for: newValue)
-        }
-    }
-
-    // MARK: - Helper methods
-
-    private func moveMonth(_ value: Int) {
-        if let newDate = Calendar.current.date(byAdding: .weekOfYear, value: value, to: currentDate) {
-            currentDate = newDate
-        }
-    }
-
-    private func firstDayOfMonth(for date: Date) -> Date {
-        let calendar = Calendar.current
-        let comps = calendar.dateComponents([.year, .month], from: date)
-        return calendar.date(from: comps) ?? date
-    }
-
-    private func applyMonthYearSelection() {
-        var comps = DateComponents()
-        comps.year = selectedYear
-        comps.month = selectedMonth + 1
-        comps.day = 1
-        if let composed = Calendar.current.date(from: comps) {
-            currentDate = composed
-        }
-    }
-
-    private func statusForDate(_ date: Date) -> DayStatus {
-        let calendar = Calendar.current
-        if calendar.isDateInToday(date) {
-            return .current
-        } else if learnedDates.contains(where: { calendar.isDate($0, inSameDayAs: date) }) {
-            return .learned
-        }
-        else if frozenDates.contains(where: { calendar.isDate($0, inSameDayAs: date) }) {
-                    return .frozen
-        }
-        else{
-            return .normal
-
-        }
-    }
-
-    private func backgroundColor(for status: DayStatus) -> Color {
-        switch status {
-        case .current: return Color.orange
-        case .learned: return Color.orange.opacity(0.2)
-        case .frozen:  return Color.coldBlue
-        case .normal:  return Color.clear
-        }
-    }
-
-    private func textColor(for status: DayStatus) -> Color {
-        switch status {
-        case .current: return .white
-        case .learned: return .orange
-        case .frozen:  return .cyan
-        case .normal:  return .white
-
+        .onChange(of: viewModel.currentDate) { _, newValue in
+            viewModel.date = viewModel.firstDayOfMonth(for: newValue)
         }
     }
 }
+
 
 
 
