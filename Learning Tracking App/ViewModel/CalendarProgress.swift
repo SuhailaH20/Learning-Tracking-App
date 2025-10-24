@@ -6,16 +6,16 @@
 //
 
 import SwiftUI
-import Combine
 
-@MainActor
-final class CalendarHorizontalViewModel: ObservableObject {
+@Observable
+class CalendarHorizontalViewModel {
     // MARK: - Published Properties
-    @Published var currentDate: Date = Date()
-    @Published var date: Date = Date()
-    @Published var showingDatePicker: Bool = false
-    @Published var selectedMonth: Int
-    @Published var selectedYear: Int
+    var currentDate = Date()
+    var date = Date()
+    var showingDatePicker = false
+
+    var selectedMonth: Int
+    var selectedYear: Int
 
     let learnedDates: [Date]
     let frozenDates: [Date]
@@ -26,12 +26,12 @@ final class CalendarHorizontalViewModel: ObservableObject {
         self.frozenDates = frozenDates
 
         let now = Date()
-        selectedMonth = Calendar.current.component(.month, from: now) - 1
-        selectedYear = Calendar.current.component(.year, from: now)
+        let calendar = Calendar.current
+        selectedMonth = calendar.component(.month, from: now) - 1
+        selectedYear = calendar.component(.year, from: now)
     }
 
     // MARK: - Computed Properties
-
     var monthYear: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMMM yyyy"
@@ -45,18 +45,21 @@ final class CalendarHorizontalViewModel: ObservableObject {
 
     var weekDates: [Date] {
         let calendar = Calendar.current
-        let startOfWeek = calendar.date(
-            from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: currentDate)
-        )!
+        let startOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: currentDate))!
         return (0..<7).compactMap { calendar.date(byAdding: .day, value: $0, to: startOfWeek) }
     }
 
-    // MARK: - Logic
-
+    // MARK: - Methods
     func moveMonth(_ value: Int) {
         if let newDate = Calendar.current.date(byAdding: .weekOfYear, value: value, to: currentDate) {
             currentDate = newDate
         }
+    }
+
+    func firstDayOfMonth(for date: Date) -> Date {
+        let calendar = Calendar.current
+        let comps = calendar.dateComponents([.year, .month], from: date)
+        return calendar.date(from: comps) ?? date
     }
 
     func applyMonthYearSelection() {
@@ -67,12 +70,6 @@ final class CalendarHorizontalViewModel: ObservableObject {
         if let composed = Calendar.current.date(from: comps) {
             currentDate = composed
         }
-    }
-
-    func firstDayOfMonth(for date: Date) -> Date {
-        let calendar = Calendar.current
-        let comps = calendar.dateComponents([.year, .month], from: date)
-        return calendar.date(from: comps) ?? date
     }
 
     func statusForDate(_ date: Date) -> DayStatus {

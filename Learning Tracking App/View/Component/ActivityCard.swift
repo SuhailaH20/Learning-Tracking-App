@@ -82,20 +82,18 @@ struct CurrentNavigation: View {
 //Calendar Struct
 
 struct CalendarHorizontalView: View {
-    @StateObject private var viewModel: CalendarHorizontalViewModel
+    @State private var viewModel: CalendarHorizontalViewModel
 
     init(learnedDates: [Date], frozenDates: [Date]) {
-        _viewModel = StateObject(
-            wrappedValue: CalendarHorizontalViewModel(
-                learnedDates: learnedDates,
-                frozenDates: frozenDates
-            )
-        )
+        _viewModel = State(initialValue: CalendarHorizontalViewModel(
+            learnedDates: learnedDates,
+            frozenDates: frozenDates
+        ))
     }
 
     var body: some View {
         VStack {
-            // MARK: - Month Bar
+            // Month bar
             HStack {
                 Text(viewModel.monthYear).bold()
 
@@ -112,7 +110,7 @@ struct CalendarHorizontalView: View {
                 .popover(isPresented: $viewModel.showingDatePicker, arrowEdge: .top) {
                     VStack(spacing: 16) {
                         HStack(spacing: 0) {
-                            // Month Wheel
+                            // Month wheel
                             Picker("Month", selection: $viewModel.selectedMonth) {
                                 ForEach(0..<12, id: \.self) { index in
                                     Text(DateFormatter().monthSymbols[index]).tag(index)
@@ -121,7 +119,7 @@ struct CalendarHorizontalView: View {
                             .pickerStyle(.wheel)
                             .frame(maxWidth: .infinity)
 
-                            // Year Wheel
+                            // Year wheel
                             let currentYear = Calendar.current.component(.year, from: Date())
                             let lowerBoundYear = 1900
                             Picker("Year", selection: $viewModel.selectedYear) {
@@ -140,35 +138,32 @@ struct CalendarHorizontalView: View {
                             viewModel.applyMonthYearSelection()
                         }
                     }
+                    .presentationCompactAdaptation(.popover)
                     .padding()
                 }
 
                 Spacer()
 
                 Button(action: { viewModel.moveMonth(-1) }) {
-                    Image(systemName: "chevron.left")
-                        .foregroundColor(.orange)
-                        .bold()
+                    Image(systemName: "chevron.left").foregroundColor(.orange).bold()
                 }
 
                 Spacer().frame(width: 28)
 
                 Button(action: { viewModel.moveMonth(1) }) {
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(.orange)
-                        .bold()
+                    Image(systemName: "chevron.right").foregroundColor(.orange).bold()
                 }
             }
 
             Spacer().frame(height: 15)
 
-            // MARK: - Week Display
+            // Week display
             HStack(spacing: 9) {
                 ForEach(Array(viewModel.weekDates.enumerated()), id: \.offset) { _, date in
                     let status = viewModel.statusForDate(date)
                     VStack {
                         Text(viewModel.weekDays[Calendar.current.component(.weekday, from: date) - 1])
-                            .foregroundColor(.gray)
+                            .foregroundColor(Color.gray)
                             .bold()
                             .font(.subheadline)
 
