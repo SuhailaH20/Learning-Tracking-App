@@ -30,8 +30,7 @@ struct ScrollingCalendarView: View {
                 ZStack {
                     Circle()
                         .frame(width: 44, height: 44)
-                        .glassEffect()
-                    Image(systemName: "chevron.backward")
+                        .opacity(0)
                 }
 
                 Spacer()

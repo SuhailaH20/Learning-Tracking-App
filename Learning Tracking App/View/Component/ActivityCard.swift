@@ -59,21 +59,24 @@ struct CurrentNavigation: View {
         HStack(spacing:10){
             Text("Activity").bold().font(Font.largeTitle)
             Spacer()
-            Image(systemName: "calendar")
-                .font(Font.system(size: 20))
-                .frame(width:44 ,height: 44)
-                .glassEffect()
+            NavigationLink (destination: ScrollingCalendarView()) {
+                Image(systemName: "calendar")
+                    .font(Font.system(size: 20))
+                    .foregroundStyle(.white)
+                    .frame(width:44 ,height: 44)
+                    .glassEffect()
+            }
                 
-            
-            Image(systemName: "pencil.and.outline")
-                .font(Font.system(size: 20))
-                .frame(width:44 ,height: 44)
-                .glassEffect()
-
+            NavigationLink (destination: LearningGoalView()) {
+                Image(systemName: "pencil.and.outline")
+                    .font(Font.system(size: 20))
+                    .foregroundStyle(.white)
+                    .frame(width:44 ,height: 44)
+                    .glassEffect()
+            }
         }
     }
 }
-
 
 
 //Calendar Struct
