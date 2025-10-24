@@ -18,7 +18,7 @@ enum ActivityState {
 struct activityPage: View {
     var topic: String
     @State private var activityState: ActivityState = .idle
-    @State private var daysLearned: Int = 5
+    @State private var daysLearned: Int = 0
     @State private var freezesUsed: Int = 0
     @State private var isFreezeDisabled: Bool = false
     @State private var learnedDates: [Date] = []

@@ -286,7 +286,9 @@ struct DaysLearned: View{
             
             VStack(alignment:.leading){
                 Text("\(daysLearned)").bold().font(.system(size: 24))
-                Text("Days Learned").font(.system(size: 12))
+                Text(daysLearned == 1 ? "Day Learned" : "Days Learned")
+                    .font(.system(size: 12))
+                    .animation(.easeInOut(duration: 0.2), value: daysLearned)
                 Spacer().frame(height: 6)
             }.frame(width: 78,height: 49)
             Spacer().frame(width: 12)
