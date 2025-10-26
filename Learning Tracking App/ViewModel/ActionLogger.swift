@@ -29,6 +29,7 @@ final class ActivityPageViewModel: ObservableObject {
     func logAsLearned() {
         daysLearned += 1
         learnedDates.append(Date())
+        print("From the calender modelview Learned dates count: \(learnedDates.count)")
 
         // Check if goal completed
         if daysLearned >= learningProgress.daysFrozen {
