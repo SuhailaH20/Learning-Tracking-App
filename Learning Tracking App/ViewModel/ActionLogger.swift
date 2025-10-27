@@ -16,22 +16,29 @@ final class ActivityPageViewModel: ObservableObject {
     @Published var activityState: ActivityState = .idle
     @Published var isFreezeDisabled: Bool = false
 
-    // Convenience computed properties (no longer separate arrays)
-    var daysLearned: Int = 10/*{ learningProgress.learnedDates.count }*/
+    // Convenience computed properties
+    var daysLearned: Int { learningProgress.learnedDates.count }
     var freezesUsed: Int { learningProgress.frozenDates.count }
 
     var learnedDates: [Date] { learningProgress.learnedDates }
     var frozenDates: [Date] { learningProgress.frozenDates }
 
+    // MARK: - Private Properties
+    private var lastActionDate: Date?
+    private var inactivityTimer: Timer?
+
     // MARK: - Init
     init(learningProgress: LearningProgress) {
         self.learningProgress = learningProgress
+        startInactivityTimer()
     }
 
     // MARK: - Logic
     func logAsLearned() {
         let today = Date()
         learningProgress.learnedDates.append(today)
+        lastActionDate = today
+        resetInactivityTimer()
 
         if daysLearned >= learningProgress.daysFrozen {
             activityState = .goalCompleted
@@ -52,6 +59,9 @@ final class ActivityPageViewModel: ObservableObject {
         guard freezesUsed < learningProgress.daysFrozen else { return }
 
         learningProgress.frozenDates.append(Date())
+        lastActionDate = Date()
+        resetInactivityTimer()
+
         isFreezeDisabled = true
         activityState = .dayFrozen
 
@@ -61,6 +71,40 @@ final class ActivityPageViewModel: ObservableObject {
         }
 
         saveProgress()
+    }
+
+    // MARK: - Inactivity Tracking
+    private func startInactivityTimer() {
+        inactivityTimer?.invalidate()
+        inactivityTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { [weak self] _ in
+            self?.checkForInactivity()
+        }
+    }
+
+    private func resetInactivityTimer() {
+        lastActionDate = Date()
+    }
+
+    private func checkForInactivity() {
+        guard let lastActionDate = lastActionDate else {
+            self.lastActionDate = Date()
+            return
+        }
+
+        // For testing: 2 minutes instead of 32 hours
+        let timeSinceLastAction = Date().timeIntervalSince(lastActionDate)
+        if timeSinceLastAction > 120 { // 120 seconds = 2 minutes
+            resetStreak()
+        }
+    }
+
+    private func resetStreak() {
+        learningProgress.learnedDates.removeAll()
+        learningProgress.frozenDates.removeAll()
+        activityState = .idle
+        isFreezeDisabled = false
+        saveProgress()
+        print("🔥 Streak has been reset due to inactivity.")
     }
 
     // MARK: - Persistence

@@ -20,7 +20,6 @@ class CalendarViewModel: ObservableObject {
         return formatter
     }()
 
-    // ✅ Add this reference
     @ObservedObject var activityViewModel: ActivityPageViewModel
 
     // MARK: - Init
