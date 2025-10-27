@@ -50,7 +50,7 @@ class CalendarHorizontalViewModel {
     }
 
     // MARK: - Methods
-    func moveMonth(_ value: Int) {
+    func moveWeek(_ value: Int) {
         if let newDate = Calendar.current.date(byAdding: .weekOfYear, value: value, to: currentDate) {
             currentDate = newDate
         }

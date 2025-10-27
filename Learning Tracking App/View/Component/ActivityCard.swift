@@ -144,13 +144,13 @@ struct CalendarHorizontalView: View {
 
                 Spacer()
 
-                Button(action: { viewModel.moveMonth(-1) }) {
+                Button(action: { viewModel.moveWeek(-1) }) {
                     Image(systemName: "chevron.left").foregroundColor(.orange).bold()
                 }
 
                 Spacer().frame(width: 28)
 
-                Button(action: { viewModel.moveMonth(1) }) {
+                Button(action: { viewModel.moveWeek(1) }) {
                     Image(systemName: "chevron.right").foregroundColor(.orange).bold()
                 }
             }
