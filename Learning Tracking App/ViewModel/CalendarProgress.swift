@@ -77,13 +77,12 @@ class CalendarHorizontalViewModel {
         if learnedDates.contains(where: { calendar.isDate($0, inSameDayAs: date) }){
             print("From the calender modelview ::::Learned dates count: \(learnedDates.count)")
             return .learned
-        } else if learnedDates.contains(where: { calendar.isDate($0, inSameDayAs: date) }) {
-            print("is it activateed???????::::Learned dates count: \(learnedDates.count)")
-
-            return .learned
         } else if frozenDates.contains(where: { calendar.isDate($0, inSameDayAs: date) }) {
             return .frozen
-        } else {
+        } else if calendar.isDateInToday(date) {
+            print("is it activateed???????::::Learned dates count: \(learnedDates.count)")
+            return .current
+        }  else {
             return .normal
         }
     }
