@@ -17,8 +17,8 @@ class CalendarHorizontalViewModel {
     var selectedMonth: Int
     var selectedYear: Int
 
-    let learnedDates: [Date]
-    let frozenDates: [Date]
+    var learnedDates: [Date]
+    var frozenDates: [Date]
 
     // MARK: - Init
     init(learnedDates: [Date], frozenDates: [Date]) {
@@ -74,9 +74,9 @@ class CalendarHorizontalViewModel {
 
     func statusForDate(_ date: Date) -> DayStatus {
         let calendar = Calendar.current
-        if calendar.isDateInToday(date) {
+        if learnedDates.contains(where: { calendar.isDate($0, inSameDayAs: date) }){
             print("From the calender modelview ::::Learned dates count: \(learnedDates.count)")
-            return .current
+            return .learned
         } else if learnedDates.contains(where: { calendar.isDate($0, inSameDayAs: date) }) {
             print("is it activateed???????::::Learned dates count: \(learnedDates.count)")
 

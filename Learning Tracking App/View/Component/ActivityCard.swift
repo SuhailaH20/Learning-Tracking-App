@@ -11,17 +11,15 @@ struct CurrentCard: View {
     var topic: String
     var freezesUsed: Int
     var daysLearned: Int
-
+    var viewModel: ActivityPageViewModel
     var learnedDates: [Date]
     var frozenDates: [Date]
     var body: some View {
         GlassEffectContainer {
             HStack {
                 VStack (alignment:.leading) {
-                    CalendarHorizontalView(
-                        learnedDates: learnedDates,
-                        frozenDates: frozenDates
-                    )
+                    CalendarHorizontalView(progressViewModel: viewModel)
+
                     Spacer().frame(height: 12)
                     Divider()
                     Spacer().frame(height: 11.5)
@@ -82,15 +80,17 @@ struct CurrentNavigation: View {
 //Calendar Struct
 
 struct CalendarHorizontalView: View {
+    @ObservedObject var progressViewModel: ActivityPageViewModel
+
     @State private var viewModel: CalendarHorizontalViewModel
 
-    init(learnedDates: [Date], frozenDates: [Date]) {
+    init(progressViewModel: ActivityPageViewModel) {
+        self.progressViewModel = progressViewModel
         _viewModel = State(initialValue: CalendarHorizontalViewModel(
-            learnedDates: learnedDates,
-            frozenDates: frozenDates
+            learnedDates: progressViewModel.learnedDates,
+            frozenDates: progressViewModel.frozenDates
         ))
     }
-
     var body: some View {
         VStack {
             // Month bar
@@ -181,8 +181,9 @@ struct CalendarHorizontalView: View {
             }
         }
         .padding()
-        .onChange(of: viewModel.currentDate) { _, newValue in
-            viewModel.date = viewModel.firstDayOfMonth(for: newValue)
+        .onReceive(progressViewModel.$learningProgress) { progress in
+            viewModel.learnedDates = progress.learnedDates
+            viewModel.frozenDates = progress.frozenDates
         }
     }
 }

@@ -11,14 +11,17 @@ import Combine
 @MainActor
 final class ActivityPageViewModel: ObservableObject {
     // MARK: - Published Properties
-    @Published var activityState: ActivityState = .idle
-    @Published var daysLearned: Int = 0
-    @Published var freezesUsed: Int = 0
-    @Published var isFreezeDisabled: Bool = false
-    @Published var learnedDates: [Date] = []
-    @Published var frozenDates: [Date] = []
+    @Published var learningProgress: LearningProgress
 
-    let learningProgress: LearningProgress
+    @Published var activityState: ActivityState = .idle
+    @Published var isFreezeDisabled: Bool = false
+
+    // Convenience computed properties (no longer separate arrays)
+    var daysLearned: Int { learningProgress.learnedDates.count }
+    var freezesUsed: Int { learningProgress.frozenDates.count }
+
+    var learnedDates: [Date] { learningProgress.learnedDates }
+    var frozenDates: [Date] { learningProgress.frozenDates }
 
     // MARK: - Init
     init(learningProgress: LearningProgress) {
@@ -27,38 +30,43 @@ final class ActivityPageViewModel: ObservableObject {
 
     // MARK: - Logic
     func logAsLearned() {
-        daysLearned += 1
-        learnedDates.append(Date())
-        print("From the calender modelview Learned dates count: \(learnedDates.count)")
+        let today = Date()
+        learningProgress.learnedDates.append(today)
 
-        // Check if goal completed
         if daysLearned >= learningProgress.daysFrozen {
             activityState = .goalCompleted
         } else {
             activityState = .learnedToday
             isFreezeDisabled = true
-
-            // Reset after 1 min (for testing; adjust as needed)
             DispatchQueue.main.asyncAfter(deadline: .now() + 60) {
                 self.activityState = .idle
                 self.isFreezeDisabled = false
             }
         }
+
+        saveProgress()
     }
 
     func freezeDay() {
         guard !isFreezeDisabled else { return }
         guard freezesUsed < learningProgress.daysFrozen else { return }
 
-        freezesUsed += 1
-        frozenDates.append(Date())
+        learningProgress.frozenDates.append(Date())
         isFreezeDisabled = true
         activityState = .dayFrozen
 
-        // Reset after 1 min
         DispatchQueue.main.asyncAfter(deadline: .now() + 60) {
             self.isFreezeDisabled = false
             self.activityState = .idle
+        }
+
+        saveProgress()
+    }
+
+    // MARK: - Persistence
+    private func saveProgress() {
+        if let data = try? JSONEncoder().encode(learningProgress) {
+            UserDefaults.standard.set(data, forKey: "LearningProgress_\(UUID().uuidString)")
         }
     }
 }

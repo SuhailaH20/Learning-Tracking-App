@@ -27,6 +27,7 @@ struct activityPage: View {
                 topic: topic,
                 freezesUsed: viewModel.freezesUsed,
                 daysLearned: viewModel.daysLearned,
+                viewModel: viewModel,
                 learnedDates: viewModel.learnedDates,
                 frozenDates: viewModel.frozenDates
             )

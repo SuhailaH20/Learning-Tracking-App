@@ -4,11 +4,15 @@
 //
 //  Created by Suhaylah hawsawi on 29/04/1447 AH.
 //
+import Foundation
 
-struct LearningProgress {
+struct LearningProgress: Codable {
     var daysLearned: Int
     var daysFrozen: Int
+    var learnedDates: [Date] = []
+    var frozenDates: [Date] = []
 }
+
 
 //For the buttons
 enum ActivityState {
