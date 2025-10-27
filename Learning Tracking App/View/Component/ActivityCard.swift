@@ -53,11 +53,13 @@ struct CurrentCard: View {
 
 //Navigation bar
 struct CurrentNavigation: View {
+    var viewModel: ActivityPageViewModel
+
     var body: some View {
         HStack(spacing:10){
             Text("Activity").bold().font(Font.largeTitle)
             Spacer()
-            NavigationLink (destination: ScrollingCalendarView()) {
+            NavigationLink (destination: ScrollingCalendarView(activityViewModel: viewModel)) {
                 Image(systemName: "calendar")
                     .font(Font.system(size: 20))
                     .foregroundStyle(.white)

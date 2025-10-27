@@ -20,6 +20,14 @@ class CalendarViewModel: ObservableObject {
         return formatter
     }()
 
+    // ✅ Add this reference
+    @ObservedObject var activityViewModel: ActivityPageViewModel
+
+    // MARK: - Init
+    init(activityViewModel: ActivityPageViewModel) {
+        self.activityViewModel = activityViewModel
+    }
+
     var months: [Date] {
         guard let startDate = calendar.date(byAdding: .month, value: -6, to: currentDate),
               let endDate = calendar.date(byAdding: .month, value: 6, to: currentDate) else {
@@ -83,13 +91,16 @@ class CalendarViewModel: ObservableObject {
     }
     
     func isFreezed(_ date: Date) -> Bool {
-        // Replace with your actual logic
-        return calendar.component(.day, from: date) % 5 == 0 // Example: every 5th day is "freezed"
+        return activityViewModel.learningProgress.frozenDates.contains {
+            calendar.isDate($0, inSameDayAs: date)
+        }
     }
 
     func isLogged(_ date: Date) -> Bool {
-        // Replace with your actual logic
-        return calendar.component(.day, from: date) % 3 == 0 // Example: every 3rd day is "logged"
+        return activityViewModel.learningProgress.learnedDates.contains {
+            calendar.isDate($0, inSameDayAs: date)
+        }
     }
+
 
 }

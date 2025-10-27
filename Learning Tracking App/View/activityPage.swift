@@ -21,7 +21,7 @@ struct activityPage: View {
 
     var body: some View {
         VStack {
-            CurrentNavigation()
+            CurrentNavigation(viewModel: viewModel)
             Spacer().frame(height: 24)
             CurrentCard(
                 topic: topic,

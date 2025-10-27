@@ -1,15 +1,22 @@
 import SwiftUI
 
 struct ScrollingCalendarView: View {
-    @StateObject private var viewModel = CalendarViewModel()
+    @ObservedObject var activityViewModel: ActivityPageViewModel
+    @StateObject private var calendarViewModel: CalendarViewModel
+
+    // MARK: - Init
+    init(activityViewModel: ActivityPageViewModel) {
+        self._activityViewModel = ObservedObject(wrappedValue: activityViewModel)
+        _calendarViewModel = StateObject(wrappedValue: CalendarViewModel(activityViewModel: activityViewModel))
+    }
 
     var body: some View {
         ZStack(alignment: .top) {
             // Scrollable content
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: 0) {
-                    ForEach(viewModel.months, id: \.self) { monthStart in
-                        CalendarMonthView(viewModel: viewModel, monthStart: monthStart)
+                    ForEach(calendarViewModel.months, id: \.self) { monthStart in
+                        CalendarMonthView(viewModel: calendarViewModel, monthStart: monthStart)
                             .frame(width: 338)
                         
                         Spacer().frame(height: 8)
@@ -57,6 +64,7 @@ struct ScrollingCalendarView: View {
         .edgesIgnoringSafeArea(.top)
     }
 }
+
 
 
 
@@ -124,24 +132,24 @@ struct CalendarDayView: View {
     // MARK: - Styling Helpers
 
     func backgroundColor(for date: Date) -> Color {
-        if viewModel.isToday(date) {
-            return Color.richOrange
+        if viewModel.isLogged(date) {
+            return Color.richOrange.opacity(0.2)
         } else if viewModel.isFreezed(date) {
             return Color.cyan.opacity(0.3)
-        } else if viewModel.isLogged(date) {
-            return Color.richOrange.opacity(0.2)
+        } else if viewModel.isToday(date) {
+            return Color.richOrange
         } else {
             return Color.clear
         }
     }
 
     func textColor(for date: Date) -> Color {
-        if viewModel.isToday(date) {
-            return Color.white
+        if viewModel.isLogged(date) {
+            return Color.orange
         } else if viewModel.isFreezed(date) {
             return Color.cyan
-        } else if viewModel.isLogged(date) {
-            return Color.orange
+        } else if viewModel.isToday(date) {
+            return Color.white
         } else {
             return Color.primary
         }
@@ -149,6 +157,6 @@ struct CalendarDayView: View {
 }
 
 
-#Preview {
-    ScrollingCalendarView()
-}
+//#Preview {
+//    ScrollingCalendarView()
+//}
