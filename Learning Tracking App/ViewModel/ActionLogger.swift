@@ -17,7 +17,7 @@ final class ActivityPageViewModel: ObservableObject {
     @Published var isFreezeDisabled: Bool = false
 
     // Convenience computed properties (no longer separate arrays)
-    var daysLearned: Int { learningProgress.learnedDates.count }
+    var daysLearned: Int = 10/*{ learningProgress.learnedDates.count }*/
     var freezesUsed: Int { learningProgress.frozenDates.count }
 
     var learnedDates: [Date] { learningProgress.learnedDates }

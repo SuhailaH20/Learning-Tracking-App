@@ -155,7 +155,6 @@ struct WellDone: View{
             .padding(24)
     }
 }
-        // ---------SMALL BUTTON---------
 
 //Learned today button
 struct LearnedTodayBIGbutton : View{
@@ -197,21 +196,30 @@ struct DayFreezedBIGbutton : View{
 
 //Set a new learning goal
 struct SetlearningGoal: View {
+    @State var addNewPage = false
+    
     var body: some View{
-        Button("Set new learning goal") {
-            /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Action@*/ /*@END_MENU_TOKEN@*/
+        NavigationStack{
+            Button("Set new learning goal") {
+                addNewPage = true
+            }
+            .foregroundStyle(Color.white)
+            .font(.system(size: 17))
+            .frame(width: 274,height:48)
+            .glassEffect(.regular.tint(Color.orange.opacity(0.95)).interactive())
         }
-        .foregroundStyle(Color.white)
-        .font(.system(size: 17))
-        .frame(width: 274,height:48)
-        .glassEffect(.regular.tint(Color.orange.opacity(0.95)).interactive())
-              
+        .navigationDestination(isPresented: $addNewPage) {
+            LearningGoalView()
+            .navigationBarBackButtonHidden(false)
+        }
+        
     }
+    
 }
 
 #Preview {
 activityPage(
     topic:"hello",
-    learningProgress: LearningProgress(daysLearned: 8, daysFrozen: 8)
+    learningProgress: LearningProgress(daysLearned: 100, daysFrozen: 8)
 )
 }
