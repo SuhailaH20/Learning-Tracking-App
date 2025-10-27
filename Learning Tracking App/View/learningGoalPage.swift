@@ -27,29 +27,16 @@ struct LearningGoalView: View {
                 
                 Spacer()
                 
-                // Hidden NavigationLink to activityPage
-                NavigationLink(
-                    destination: activityPage(
-                        topic: activityTopic,
-                        learningProgress: activityProgress
-                    ),
-                    isActive: $navigateToActivity
-                ) {
-                    EmptyView()
                 }
             }
             .navigationTitle("Learning Goal")
             .bold()
             .navigationBarTitleDisplayMode(.inline)
-            .navigationBarBackButtonHidden(true)
+            .navigationBarBackButtonHidden(false)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: {
-                        // Go back
-                    }) {
-                        Image(systemName: "chevron.left")
-                            .foregroundColor(.white)
-                    }
+                    EmptyView()
+
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
@@ -80,9 +67,16 @@ struct LearningGoalView: View {
             } message: {
                 Text("Are you sure you want to proceed?")
             }
+            
+            .navigationDestination(isPresented: $navigateToActivity) {
+                activityPage(
+                    topic: activityTopic,
+                    learningProgress: activityProgress
+                )
+                .navigationBarBackButtonHidden(true) // no back button on the next page either
+            }
         }
     }
-}
 
 
 #Preview {
